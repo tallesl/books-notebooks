@@ -12,54 +12,45 @@ def __():
 
 @app.cell
 def __(mo):
-    mo.md(r"""# 1 - Checking setup of needed libraries""")
-    return
-
-
-@app.cell
-def __(mo):
     import matplotlib
     import numpy as np
+    import pydot
     import tensorflow as tf
     from tensorflow import keras
 
+    matplotlib_version = matplotlib.__version__
+    numpy_version = np.version.version
+    pydot_version = pydot.__version__
+    tensorflow_version = tf.__version__
+    keras_version = keras.__version__
+
+
     mo.md(fr'''
+
+    # 1 - Checking setup of needed libraries
 
     Importing the modules that we are going to use and verifying its versions:
 
-    - Matplotlib version {matplotlib.__version__}
-    - NumPy version: {np.version.version}
-    - TensorFlow version: {tf.__version__}
-    - Keras version: {keras.__version__}
+    - Matplotlib version {matplotlib_version}
+    - NumPy version: {numpy_version}
+    - Pydot version: {pydot_version}
+    - TensorFlow version: {tensorflow_version}
+    - Keras version: {keras_version}
 
+    On the next section we'll load the training and testing set of images and labels from the Fashion MNIST dataset.
     ''')
-    return keras, matplotlib, np, tf
-
-
-@app.cell
-def __(mo):
-    mo.md("""On the next section we'll load the training and testing set of images and labels from the Fashion MNIST dataset.""")
-    return
-
-
-@app.cell
-def __(mo):
-    mo.md("""# 2 - Loading the Fashion MNIST dataset""")
-    return
-
-
-@app.cell
-def __(mo):
-    mo.md(
-        r"""
-        We can download Fashion MNIST with Keras itself: `keras.datasets.fashion_mnist.load_data()`.
-
-        This would download the dataset to here: `~/.keras/datasets/fashion-mnist.npz`.
-
-        But let's load the file your own way instead (see below).
-        """
+    return (
+        keras,
+        keras_version,
+        matplotlib,
+        matplotlib_version,
+        np,
+        numpy_version,
+        pydot,
+        pydot_version,
+        tensorflow_version,
+        tf,
     )
-    return
 
 
 @app.cell
@@ -76,6 +67,14 @@ def __(mo, np):
 
     mo.md('''
 
+    # 2 - Loading the Fashion MNIST dataset
+
+    We can download Fashion MNIST with Keras itself:
+    keras.datasets.fashion_mnist.load_data()`. This would download the dataset to
+    here: `~/.keras/datasets/fashion-mnist.npz`.
+
+    But let's load the file your own way instead.
+
     We are reproducing some load functions from [here](https://github.com/zalandoresearch/fashion-mnist/blob/master/utils/mnist_reader.py),
     from same repository that hosts the dataset files (`.gz` files).
 
@@ -90,6 +89,8 @@ def __(load_images, load_labels, mo):
 
     testing_labels = load_labels('fashion-mnist/t10k-labels-idx1-ubyte.gz')
     testing_pixels = load_images('fashion-mnist/t10k-images-idx3-ubyte.gz')
+
+    label_description = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
 
     mo.md(fr'''
 
@@ -112,15 +113,6 @@ def __(load_images, load_labels, mo):
     - Total testing images: {len(testing_pixels)/(28*28)}
     - Total testing labels: {len(testing_labels)}
 
-    ''')
-    return testing_labels, testing_pixels, training_labels, training_pixels
-
-
-@app.cell
-def __(mo):
-    label_description = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
-
-    mo.md(fr'''
 
     The labels goes from 0 to 9 and are categorized as follows:
 
@@ -136,67 +128,83 @@ def __(mo):
     7     | {label_description[7]}
     8     | {label_description[8]}
     9     | {label_description[9]}
-        
+
     ''')
-    return label_description,
+    return (
+        label_description,
+        testing_labels,
+        testing_pixels,
+        training_labels,
+        training_pixels,
+    )
 
 
 @app.cell
 def __(label_description, mo, training_labels, training_pixels):
     import matplotlib.pyplot as plt
 
-    def plot(image):
+    def plot_sample(image):
         plt.figure(figsize=(1,1)) # display the image as 1 inch x 1 inch
         plt.axis('off') # not plotting x and y axis with the image
         plt.imshow(image, cmap='gray')
         plt.show()
 
-    image_sample = training_pixels[:784].reshape((28,28))
-    label_sample = training_labels[0]
+    first_image = training_pixels[:784].reshape((28,28))
+    first_label = training_labels[0]
 
-    plot(image_sample)
-    print(label_description[label_sample])
+    last_image = training_pixels[-784:].reshape((28,28))
+    last_label = training_labels[-1]
+
+    plot_sample(first_image)
+    print(label_description[first_label])
+    print()
+    plot_sample(last_image)
+    print(label_description[last_label])
 
     mo.md(r'''
 
-    Let's plot the first image of the training set as sample and check its label.
+    Let's plot the first and last images of the training set as sample and check its label.
 
-    We take the first 784 pixels from the training set pixels and then by using 
-    NumPy'sreshape method we change it to a 28x28 array.
+    We take 784 pixels from the training set pixels and then by using 
+    NumPy's reshape method we change it to a 28x28 array.
 
     After that we handle our 2D array to Matplotlib and get the image plotted.
 
     ''')
-    return image_sample, label_sample, plot, plt
+    return (
+        first_image,
+        first_label,
+        last_image,
+        last_label,
+        plot_sample,
+        plt,
+    )
 
 
 @app.cell
-def __(label_description, mo, plot, testing_labels, testing_pixels):
-    another_image_sample = testing_pixels[-784:].reshape((28,28))
-    another_label_sample = testing_labels[-1]
-
-    plot(another_image_sample)
-    print(label_description[another_label_sample])
-
-    mo.md(r'''
-
-    Another sample image, now the last from the training set.
-
-    ''')
-    return another_image_sample, another_label_sample
-
-
-@app.cell
-def __(mo, testing_pixels, training_pixels):
+def __(
+    mo,
+    testing_labels,
+    testing_pixels,
+    training_labels,
+    training_pixels,
+):
     total_training_images = int(len(training_pixels) / 784)
     training_images = training_pixels.reshape((total_training_images, 784))
 
     total_testing_images = int(len(testing_pixels) / 784)
     testing_images = testing_pixels.reshape((total_testing_images, 784))
 
-    mo.md(r'''
+    mo.md(fr'''
 
-    Lastly, let's reshape our array of consecutive pixels into a 2x2 matrix of number of images x 784 pixels with `.reshape(total images, 784)`
+    Lastly, let's reshape our array of consecutive pixels into a 2x2 matrix (number of images x 784 pixels) with `.reshape(total images, 784)`
+
+    That's the end of this section, on the next section we'll setup our Keras model that will train and predict based on our images and labels.
+
+    - `training_images` shape: {training_images.shape}
+    - `training_labels` shape: {training_labels.shape}
+    - `testing_images` shape: {testing_images.shape}
+    - `testing_labels` shape: {testing_labels.shape}
 
     ''')
     return (
@@ -208,29 +216,14 @@ def __(mo, testing_pixels, training_pixels):
 
 
 @app.cell
-def __(
-    mo,
-    testing_images,
-    testing_labels,
-    training_images,
-    training_labels,
-):
-    mo.md(fr'''
-
-    That's the end of this section, on the next section we'll setup our Keras model that will train and predict based on our images and labels.
-
-    - `training_images` shape: {training_images.shape}
-    - `training_labels` shape: {training_labels.shape}
-    - `testing_images` shape: {testing_images.shape}
-    - `testing_labels` shape: {testing_labels.shape}
-
-    ''')
-    return
-
-
-@app.cell
 def __(mo):
-    mo.md("""# 3 - Setting up our Keras model""")
+    mo.md(
+        """
+        # 3 - Model architecture
+
+        Below you can see a diagram with our proposed model comprising of an input layer, followed by two fully connected hidden layers, and lastly an output layer.
+        """
+    )
     return
 
 
@@ -252,19 +245,7 @@ def __(mo):
 def __(mo):
     mo.md(
         r"""
-        Above you can see a diagram with our proposed model comprising of an input layer, followed by two fully connected hidden layers, and lastly an output layer.
-
-        Let's dedicate the sections below to understand the role of each layer of our model.
-        """
-    )
-    return
-
-
-@app.cell
-def __(mo):
-    mo.md(
-        r"""
-        ## 3.1 - Input layer
+        # 4 - Input layer
 
         The input is the first layer of the network, which will receive the 784 pixel of each image from our dataset, without any transformation performed in our case.
 
@@ -278,7 +259,7 @@ def __(mo):
 def __(mo):
     mo.md(
         """
-        ## 3.2 - Hidden layers
+        # 5 - Hidden layers and ReLU
 
         Our model contains two hidden layers, with 300 units and 100 units respectively. "Units" are also sometimes referred as "neurons".
 
@@ -300,9 +281,15 @@ def __(mo):
 
 @app.cell
 def __(mo):
+    mo.md("""TODO explain relu""")
+    return
+
+
+@app.cell
+def __(mo):
     mo.md(
         r"""
-        ## 3.3 - Output layer
+        # 6 - Output layer and softmax
 
         Lastly we have our output layer, which will output a number from 0 to 9, which is our model answer to the question "what is the category of the given image?".
 
@@ -321,111 +308,24 @@ def __(mo):
 
 @app.cell
 def __(mo):
-    mo.md("""## 3.4 - Activation functions""")
-    return
-
-
-@app.cell
-def __(np, plt):
-
-
-    # Define the ReLU function
-    def relu(x):
-        return np.maximum(0, x)
-
-    # Define the Softmax function
-    def softmax(x):
-        exp_x = np.exp(x - np.max(x))  # Subtract max for numerical stability
-        return exp_x / np.sum(exp_x, axis=0)
-
-    # Generate input data for ReLU
-    x_relu = np.linspace(-10, 10, 500)
-
-    # Generate input data for Softmax
-    x_softmax = np.linspace(-2, 2, 500)
-
-    # Compute ReLU output
-    y_relu = relu(x_relu)
-
-    # Create logits with more variation for Softmax
-    logits = np.array([x_softmax, 2*x_softmax, -x_softmax])
-
-    # Compute Softmax output
-    y_softmax = softmax(logits)
-
-    # Plotting ReLU function
-    plt.figure(figsize=(10, 5))
-
-    plt.subplot(1, 2, 1)
-    plt.plot(x_relu, y_relu, label="ReLU(x)", color="blue")
-    plt.title("ReLU Activation Function")
-    plt.xlabel("Input")
-    plt.ylabel("Output")
-    plt.axhline(0, color='black', linewidth=0.5)
-    plt.axvline(0, color='black', linewidth=0.5)
-    plt.grid(True)
-
-    # Plotting Softmax function
-    plt.subplot(1, 2, 2)
-    for i, y in enumerate(y_softmax):
-        plt.plot(x_softmax, y, label=f"Class {i+1}")
-    plt.title("Softmax Activation Function")
-    plt.xlabel("Input")
-    plt.ylabel("Probability")
-    plt.axhline(0, color='black', linewidth=0.5)
-    plt.axvline(0, color='black', linewidth=0.5)
-    plt.grid(True)
-    plt.legend()
-
-    plt.tight_layout()
-    plt.show()
-
-    return i, logits, relu, softmax, x_relu, x_softmax, y, y_relu, y_softmax
-
-
-@app.cell
-def __(mo):
-    mo.md(
-        r"""
-        ### ReLU Activation Function
-        The **ReLU (Rectified Linear Unit)** activation function is widely used in hidden layers of neural networks due to its simplicity and effectiveness. ReLU is defined as:
-
-        \[
-        \text{ReLU}(x) = \max(0, x)
-        \]
-
-        This means that ReLU outputs 0 for any negative input and returns the input itself for positive values. The primary advantage of ReLU is that it introduces non-linearity into the model while being computationally efficient, which helps the network learn complex patterns. However, it can suffer from the "dying ReLU" problem, where neurons may become inactive if they output zero consistently.
-
-        ### Softmax Activation Function
-        The **Softmax** activation function is typically used in the output layer of a neural network for multi-class classification problems. Softmax converts logits (raw prediction scores) into probabilities, allowing the network to predict the likelihood of each class. It is defined as:
-
-        \[
-        \text{Softmax}(z_i) = \frac{e^{z_i}}{\sum_{j} e^{z_j}}
-        \]
-
-        Where \(z_i\) is the logit (input to the Softmax function) for class \(i\). The output of the Softmax function is a probability distribution over all possible classes, with the sum of all probabilities equal to 1. This makes it ideal for tasks where the model must choose one class out of many, such as digit classification or image recognition.
-
-        """
-    )
-    return
-
-
-@app.cell
-def __(mo):
-    mo.md(r"""## 3.5 - Creating our model""")
+    mo.md("""TODO explain softmax""")
     return
 
 
 @app.cell
 def __(keras, mo):
-    model = keras.Sequential([
-        keras.Input(shape=(784,)),
-        keras.layers.Dense(300, activation='relu'),
-        keras.layers.Dense(100, activation='relu'),
-        keras.layers.Dense(10, activation='softmax')
-    ])
+    layers= [
+        keras.Input(shape=(784,), name='input'),
+        keras.layers.Dense(units=300, activation='relu', name='Hidden #1'),
+        keras.layers.Dense(units=100, activation='relu', name='Hidden #2'),
+        keras.layers.Dense(units=10, activation='softmax', name='Output')
+    ]
+
+    model = keras.Sequential(layers, name='Fashion MNIST classification')
 
     mo.md(fr'''
+
+    # 7 - Creating our model
 
     Let's instantiate our model now. After all the previous explanations, understanding the creation of this model should be straightforward. Note that "dense" just means the layer is fully connected.
 
@@ -436,7 +336,45 @@ def __(keras, mo):
     - [keras.layers.Dense](https://keras.io/api/layers/core_layers/dense/)
 
     ''')
-    return model,
+    return layers, model
+
+
+@app.cell
+def __(mo, model):
+    model.summary()
+
+    mo.md('''
+
+    Keras provides a `.summary()` method that prints out a table with the model details. The "Param" count is the sum of weights and biases, the number should match the calculations that we did in the previous sections.
+
+    More information on [keras.Model.summary](https://keras.io/api/models/model/#summary-method) documentation.
+
+    ''')
+    return
+
+
+@app.cell
+def __(keras, matplotlib, mo, model, plt):
+    def plot_model_png():
+        img = matplotlib.image.imread('model.png')
+        plt.figure(figsize=(8, 8))
+        plt.imshow(img)
+        plt.axis('off')
+        plt.show()
+
+    keras.utils.plot_model(model, to_file='model.png', show_shapes=True, show_dtype=True, show_layer_names=True, show_layer_activations=True)
+
+    plot_model_png()
+
+    mo.md('''
+
+    We also have a handy method available for exporting the model as a PNG image.
+
+
+    More information on [keras.utils.plot_model](https://keras.io/api/utils/model_plotting_utils/) documentation.
+
+    ''')
+    return plot_model_png,
 
 
 if __name__ == "__main__":

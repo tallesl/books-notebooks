@@ -1,0 +1,3 @@
+matplotlib
+marimo
+tensorflow[and-cuda]

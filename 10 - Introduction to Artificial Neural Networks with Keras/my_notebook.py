@@ -326,6 +326,91 @@ def __(mo):
 
 
 @app.cell
+def __(np, plt):
+
+
+    # Define the ReLU function
+    def relu(x):
+        return np.maximum(0, x)
+
+    # Define the Softmax function
+    def softmax(x):
+        exp_x = np.exp(x - np.max(x))  # Subtract max for numerical stability
+        return exp_x / np.sum(exp_x, axis=0)
+
+    # Generate input data for ReLU
+    x_relu = np.linspace(-10, 10, 500)
+
+    # Generate input data for Softmax
+    x_softmax = np.linspace(-2, 2, 500)
+
+    # Compute ReLU output
+    y_relu = relu(x_relu)
+
+    # Create logits with more variation for Softmax
+    logits = np.array([x_softmax, 2*x_softmax, -x_softmax])
+
+    # Compute Softmax output
+    y_softmax = softmax(logits)
+
+    # Plotting ReLU function
+    plt.figure(figsize=(10, 5))
+
+    plt.subplot(1, 2, 1)
+    plt.plot(x_relu, y_relu, label="ReLU(x)", color="blue")
+    plt.title("ReLU Activation Function")
+    plt.xlabel("Input")
+    plt.ylabel("Output")
+    plt.axhline(0, color='black', linewidth=0.5)
+    plt.axvline(0, color='black', linewidth=0.5)
+    plt.grid(True)
+
+    # Plotting Softmax function
+    plt.subplot(1, 2, 2)
+    for i, y in enumerate(y_softmax):
+        plt.plot(x_softmax, y, label=f"Class {i+1}")
+    plt.title("Softmax Activation Function")
+    plt.xlabel("Input")
+    plt.ylabel("Probability")
+    plt.axhline(0, color='black', linewidth=0.5)
+    plt.axvline(0, color='black', linewidth=0.5)
+    plt.grid(True)
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
+
+    return i, logits, relu, softmax, x_relu, x_softmax, y, y_relu, y_softmax
+
+
+@app.cell
+def __(mo):
+    mo.md(
+        r"""
+        ### ReLU Activation Function
+        The **ReLU (Rectified Linear Unit)** activation function is widely used in hidden layers of neural networks due to its simplicity and effectiveness. ReLU is defined as:
+
+        \[
+        \text{ReLU}(x) = \max(0, x)
+        \]
+
+        This means that ReLU outputs 0 for any negative input and returns the input itself for positive values. The primary advantage of ReLU is that it introduces non-linearity into the model while being computationally efficient, which helps the network learn complex patterns. However, it can suffer from the "dying ReLU" problem, where neurons may become inactive if they output zero consistently.
+
+        ### Softmax Activation Function
+        The **Softmax** activation function is typically used in the output layer of a neural network for multi-class classification problems. Softmax converts logits (raw prediction scores) into probabilities, allowing the network to predict the likelihood of each class. It is defined as:
+
+        \[
+        \text{Softmax}(z_i) = \frac{e^{z_i}}{\sum_{j} e^{z_j}}
+        \]
+
+        Where \(z_i\) is the logit (input to the Softmax function) for class \(i\). The output of the Softmax function is a probability distribution over all possible classes, with the sum of all probabilities equal to 1. This makes it ideal for tasks where the model must choose one class out of many, such as digit classification or image recognition.
+
+        """
+    )
+    return
+
+
+@app.cell
 def __(mo):
     mo.md(r"""## 3.5 - Creating our model""")
     return

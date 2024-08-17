@@ -31,7 +31,7 @@ def __(mo):
     - NumPy version: {np.version.version}
     - TensorFlow version: {tf.__version__}
     - Keras version: {keras.__version__}
-        
+
     ''')
     return keras, matplotlib, np, tf
 
@@ -80,7 +80,7 @@ def __(mo, np):
     that hosts the dataset files (`.gz` files).
 
     [1]: https://github.com/zalandoresearch/fashion-mnist/blob/master/utils/mnist_reader.py
-            
+
     ''')
     return gzip, load_images, load_labels
 
@@ -92,7 +92,6 @@ def __(load_images, load_labels, mo):
 
     testing_labels = load_labels('fashion-mnist/t10k-labels-idx1-ubyte.gz')
     testing_pixels = load_images('fashion-mnist/t10k-images-idx3-ubyte.gz')
-
 
     mo.md(fr'''
 
@@ -121,29 +120,31 @@ def __(load_images, load_labels, mo):
 
 @app.cell
 def __(mo):
-    mo.md(
-        r"""
-        The labels goes from 0 to 9 and are categorized as follows:
+    label_description = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
 
-        Label | Description
-        ----- | -----------
-        0     | T-shirt/top
-        1     | Trouser
-        2     | Pullover
-        3     | Dress
-        4     | Coat
-        5     | Sandal
-        6     | Shirt
-        7     | Sneaker
-        8     | Bag
-        9     | Ankle boot
-        """
-    )
-    return
+    mo.md(fr'''
+
+    The labels goes from 0 to 9 and are categorized as follows:
+
+    Label | Description
+    ----- | -----------
+    0     | {label_description[0]}
+    1     | {label_description[1]}
+    2     | {label_description[2]}
+    3     | {label_description[3]}
+    4     | {label_description[4]}
+    5     | {label_description[5]}
+    6     | {label_description[6]}
+    7     | {label_description[7]}
+    8     | {label_description[8]}
+    9     | {label_description[9]}
+        
+    ''')
+    return label_description,
 
 
 @app.cell
-def __(mo, training_labels, training_pixels):
+def __(label_description, mo, training_labels, training_pixels):
     import matplotlib.pyplot as plt
 
     def plot(image):
@@ -151,15 +152,14 @@ def __(mo, training_labels, training_pixels):
         plt.axis('off') # not plotting x and y axis with the image
         plt.imshow(image, cmap='gray')
         plt.show()
-        
 
     image_sample = training_pixels[:784].reshape((28,28))
     label_sample = training_labels[0]
 
     plot(image_sample)
-    print(f'Label: {label_sample}')
+    print(label_description[label_sample])
 
-    mo.md(fr'''
+    mo.md(r'''
 
     Let's plot the first image of the training set as sample and check its label.
 
@@ -173,14 +173,14 @@ def __(mo, training_labels, training_pixels):
 
 
 @app.cell
-def __(mo, plot, testing_labels, testing_pixels):
+def __(label_description, mo, plot, testing_labels, testing_pixels):
     another_image_sample = testing_pixels[-784:].reshape((28,28))
     another_label_sample = testing_labels[-1]
 
     plot(another_image_sample)
-    print(f'Label: {another_label_sample}')
+    print(label_description[another_label_sample])
 
-    mo.md(fr'''
+    mo.md(r'''
 
     Another sample image, now the last from the training set.
 
@@ -196,10 +196,10 @@ def __(mo, testing_pixels, training_pixels):
     total_testing_images = int(len(testing_pixels) / 784)
     testing_images = testing_pixels.reshape((total_testing_images, 784))
 
-    mo.md(fr'''
+    mo.md(r'''
 
     Lastly, let's reshape our array of consecutive pixels into a 2x2 matrix of number of images x 784 pixels with `.reshape(total images, 784)`
-        
+
     ''')
     return (
         testing_images,

@@ -377,5 +377,59 @@ def __(keras, matplotlib, mo, model, plt):
     return plot_model_png,
 
 
+@app.cell
+def __(mo):
+    mo.md("""# 8 - Compiling the model""")
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md(r"""# 9 - Training a single epoch""")
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md("""# 10 - Classifying an image""")
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md("""# 11 - Saving the model""")
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md("""# 12 - Loading the model""")
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md("""# 13 - Training the model further""")
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md("""# 14 - Classifying an image (again)""")
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md("""# 15 - Visually the learning with TensorBoard""")
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md("""# 16 - Converting it to a TensorFlow Lite model and using it""")
+    return
+
+
 if __name__ == "__main__":
     app.run()

@@ -316,18 +316,20 @@ def __(mo):
 def __(keras, mo):
     layers= [
         keras.Input(shape=(784,), name='input'),
-        keras.layers.Dense(units=300, activation='relu', name='Hidden #1'),
-        keras.layers.Dense(units=100, activation='relu', name='Hidden #2'),
-        keras.layers.Dense(units=10, activation='softmax', name='Output')
+        keras.layers.Dense(units=300, activation='relu', name='hidden_1'),
+        keras.layers.Dense(units=100, activation='relu', name='hidden_2'),
+        keras.layers.Dense(units=10, activation='softmax', name='output')
     ]
 
-    model = keras.Sequential(layers, name='Fashion MNIST classification')
+    model = keras.Sequential(layers, name='fashion_mnist')
 
     mo.md(fr'''
 
     # 7 - Creating our model
 
     Let's instantiate our model now. After all the previous explanations, understanding the creation of this model should be straightforward. Note that "dense" just means the layer is fully connected.
+
+    Naming the model and the layers is optional, but when providing names make sure to not use spaces, else you'll get a "not a valid root scope name" error later.
 
     For further information check out the Keras documentation:
 
@@ -357,9 +359,9 @@ def __(mo, model):
 def __(keras, matplotlib, mo, model, plt):
     def plot_model_png():
         img = matplotlib.image.imread('model.png')
-        plt.figure(figsize=(8, 8))
+        plt.figure(figsize=(8, 8)) # display the image as 8 inch x 8 inch
+        plt.axis('off') # not plotting x and y axis with the image
         plt.imshow(img)
-        plt.axis('off')
         plt.show()
 
     keras.utils.plot_model(model, to_file='model.png', show_shapes=True, show_dtype=True, show_layer_names=True, show_layer_activations=True)
@@ -378,14 +380,44 @@ def __(keras, matplotlib, mo, model, plt):
 
 
 @app.cell
-def __(mo):
-    mo.md("""# 8 - Compiling the model""")
+def __(mo, model):
+    model.compile(
+        optimizer="sgd",
+        loss="sparse_categorical_crossentropy",
+        metrics=["accuracy"]
+    )
+
+    mo.md('''
+
+    # 8 - Compiling the model
+
+    More information on [keras.Model.compile](https://keras.io/api/models/model_training_apis#compile-method) documentation.
+
+    ''')
     return
 
 
 @app.cell
-def __(mo):
-    mo.md(r"""# 9 - Training a single epoch""")
+def __(
+    mo,
+    model,
+    testing_images,
+    testing_labels,
+    training_images,
+    training_labels,
+):
+    model.fit(
+        x=training_images,
+        y=training_labels,
+        validation_data=(testing_images, testing_labels),
+        epochs=1
+    )
+
+    mo.md(r'''
+
+    # 9 - Training a single epoch
+
+    ''')
     return
 
 

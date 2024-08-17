@@ -76,10 +76,8 @@ def __(mo, np):
 
     mo.md('''
 
-    We are reproducing some load functions from [here][1], from same repository
-    that hosts the dataset files (`.gz` files).
-
-    [1]: https://github.com/zalandoresearch/fashion-mnist/blob/master/utils/mnist_reader.py
+    We are reproducing some load functions from [here](https://github.com/zalandoresearch/fashion-mnist/blob/master/utils/mnist_reader.py),
+    from same repository that hosts the dataset files (`.gz` files).
 
     ''')
     return gzip, load_images, load_labels
@@ -228,6 +226,132 @@ def __(
 
     ''')
     return
+
+
+@app.cell
+def __(mo):
+    mo.md("""# 3 - Setting up our Keras model""")
+    return
+
+
+@app.cell
+def __(mo):
+    mo.mermaid('''
+
+    graph TD
+        in["input layer<br>shape: (784,)"]
+        in --> hidden1["fully connected hidden layer<br>units: 300<br>activation function: ReLU"]
+        hidden1 --> hidden2["fully connected hidden layer<br>units: 100<br>activation function: ReLU"]
+        hidden2 --> out["output layer<br>units: 10<br>activation function: Softmax"]
+
+    ''')
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md(
+        r"""
+        Above you can see a diagram with our proposed model comprising of an input layer, followed by two fully connected hidden layers, and lastly an output layer.
+
+        Let's dedicate the sections below to understand the role of each layer of our model.
+        """
+    )
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md(
+        r"""
+        ## 3.1 - Input layer
+
+        The input is the first layer of the network, which will receive the 784 pixel of each image from our dataset, without any transformation performed in our case.
+
+        The input layer holds no weights or biases, it will simply pass the data forward to the next layer.
+        """
+    )
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md(
+        """
+        ## 3.2 - Hidden layers
+
+        Our model contains two hidden layers, with 300 units and 100 units respectively. "Units" are also sometimes referred as "neurons".
+
+        In a fully connected model such as ours, calculating the weights of a layer it's a simple matter of calculating previous layer units times this layer units. The number of biases is equal the number of units.
+
+        From the input layer to the first hidden layer we have:
+
+        - 235200 weights (784 units of the input layer x 300 of this layer)
+        - 300 biases (same amount of units of this layer)
+
+        From the first hidden layer to the second hidden layer we have:
+
+        - 30000 weights (300 units of the input layer x 100 of this layer)
+        - 100 biases (same amount of units of this layer)
+        """
+    )
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md(
+        r"""
+        ## 3.3 - Output layer
+
+        Lastly we have our output layer, which will output a number from 0 to 9, which is our model answer to the question "what is the category of the given image?".
+
+        The output is from 0 to 9 because that is the range of categories of our dataset (Fashion MNIST). Our layer has 10 units, one for each category.
+
+        Categorizing data is also referred as "classification".
+
+        Calculating the weights and biases, from the last hidden layer to the output layer we have:
+
+        - 1000 weights (100 units of the last hidden layer x 10 of this layer)
+        - 10 biases (same amount of units of this layer)
+        """
+    )
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md("""## 3.4 - Activation functions""")
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md(r"""## 3.5 - Creating our model""")
+    return
+
+
+@app.cell
+def __(keras, mo):
+    model = keras.Sequential([
+        keras.Input(shape=(784,)),
+        keras.layers.Dense(300, activation='relu'),
+        keras.layers.Dense(100, activation='relu'),
+        keras.layers.Dense(10, activation='softmax')
+    ])
+
+    mo.md(fr'''
+
+    Let's instantiate our model now. After all the previous explanations, understanding the creation of this model should be straightforward. Note that "dense" just means the layer is fully connected.
+
+    For further information check out the Keras documentation:
+
+    - [keras.Sequential](https://keras.io/api/models/sequential/)
+    - [keras.Input](https://keras.io/api/layers/core_layers/input/)
+    - [keras.layers.Dense](https://keras.io/api/layers/core_layers/dense/)
+
+    ''')
+    return model,
 
 
 if __name__ == "__main__":

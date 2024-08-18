@@ -580,7 +580,23 @@ def __(mo):
 
 @app.cell
 def __(mo):
-    mo.md("""TODO explain loss and sparse categorical cross entropy""")
+    mo.md(
+        """
+        Loss, also known as error or cost, measures how far the predictions are from the actual values. This value is used not only to assess model performance but also to guide the learning process, as it is backpropagated from the output layer to adjust the weights in previous layers.
+
+        Loss functions are chosen based on the type of problem the model is solving, such as regression or classification. We'll use the sparse crossentropy function while training our model.
+
+        Its calculation is simple: -log(x), where x is the predicted probability for the expected correct category. Probabilities for the incorrect categories are ignored in the loss calculation.
+
+        Example:
+
+        Predicted  for A | Predicted for B | Predicted for C | Correct category | Loss
+        ---------------- | --------------- | --------------- | ---------------- | ----
+        0.4              | 0.1             | 0.5             | A                | -log(0.4) = 0.398
+        0.2              | 0.7             | 0.1             | B                | -log(0.7) = 0.155
+        0.3              | 0.4             | 0.3             | C                | -log(0.3) = 0.523
+        """
+    )
     return
 
 

@@ -286,19 +286,22 @@ def __(mo):
 
 @app.cell
 def __(mo, np, plt):
+    def plot_relu():
+        x_values = np.linspace(-10, 10, 100)
+        y_values = relu(x_values)
+        
+        plt.figure(figsize=(6, 4))
+        plt.plot(x_values, y_values, label='ReLU(x)')
+        plt.title('Rectified Linear Unit (ReLU)')
+        plt.xlabel('x')
+        plt.ylabel('y')
+        plt.grid(True)
+        plt.show()
+
     def relu(x):
         return np.maximum(0, x)
 
-    x_values = np.linspace(-10, 10, 100)
-    y_values = relu(x_values)
-
-    plt.figure(figsize=(6, 4))
-    plt.plot(x_values, y_values, label='ReLU(x)')
-    plt.title('Rectified Linear Unit (ReLU)')
-    plt.xlabel('x')
-    plt.ylabel('y')
-    plt.grid(True)
-    plt.show()
+    plot_relu()
 
     mo.md('''
 
@@ -308,15 +311,15 @@ def __(mo, np, plt):
     ReLU(x) = max(0, x)
     ```
 
-    What just means:
+    It just means:
 
     - If `x` is positive, returns x.
     - If `x` is negative or zero, returns zero.
 
-    It's simplicity makes it very computationally efficient and it's one of the most used activation functions for hidden layers.
+    It's simplicity makes it computationally efficient and it's one of the most used activation functions for hidden layers.
 
     ''')
-    return relu, x_values, y_values
+    return plot_relu, relu
 
 
 @app.cell
@@ -340,7 +343,43 @@ def __(mo):
 
 @app.cell
 def __(mo):
-    mo.md("""TODO explain softmax""")
+    mo.md(
+        r"""
+        The Softmax function is used to convert a set of raw scores (also called "logits") into probabilities. It's commonly used in the final layer of a neural network for classification tasks where the model must pick an option  between multiple classes.
+
+        Its calculation can be broken down into three steps. Let's check the probability calculation given the following values:
+
+        Category   | Value
+        --------   | -----
+        Category A | 2.0
+        Category B | 1.0
+        Category C | 0.1
+
+        **Step 1: Calculate the exponential**
+
+        - exp(2.0) = 7.389
+        - exp(1.0) = 2.718
+        - exp(0.1) = 1.105
+
+        **Step 2: Sum the exponentials**
+
+        7.389 + 2.718+ 1.105 = 11.212
+
+        **Step 3: Calculate the proportion of the sum**
+
+        - exp(2.0) / sum = 7.389 / 11.212 = 0.659
+        - exp(1.0) / sum = 2.718 / 11.212 = 0.242
+        - exp(0.1) / sum = 1.105 / 11.212 = 0.099
+
+        Here are the final probabilities that softmax gave us:
+
+        Category   | Value | Probability
+        --------   | ----- | -----------
+        Category A | 2.0   | 0.659 (or 66%)
+        Category B | 1.0   | 0.242 (or 24%)
+        Category C | 0.1   | 0.099 (or 10%)
+        """
+    )
     return
 
 

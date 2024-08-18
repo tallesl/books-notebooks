@@ -10,7 +10,7 @@ def __():
     return mo,
 
 
-@app.cell
+@app.cell(hide_code=True)
 def __(mo):
     import matplotlib
     import numpy as np
@@ -347,7 +347,7 @@ def __(mo):
         r"""
         The Softmax function is used to convert a set of raw scores (also called "logits") into probabilities. It's commonly used in the final layer of a neural network for classification tasks where the model must pick an option  between multiple classes.
 
-        Its calculation can be broken down into three steps. Let's check the probability calculation given the following values:
+        Its calculation can be broken down into three steps. Let's walk through the probability calculation given the following values:
 
         Category   | Value
         --------   | -----
@@ -563,7 +563,7 @@ def __(mo, model):
     Compiling a model means setting up all the need settings for its training:
 
     - The optimization algorithm, stochastic gradient descent (SGD) in our case.
-    - The loss function, sparce categorical crossentropy in our case.
+    - The loss function, sparse categorical crossentropy in our case.
     - The metrics displayed during training, just accuracy in our case (correct predictions / total predictions).
 
     More information on [keras.Model.compile](https://keras.io/api/models/model_training_apis#compile-method) documentation.
@@ -573,8 +573,70 @@ def __(mo, model):
 
 
 @app.cell
+def __(mo, np, plt):
+    def plot_gradient_descent():
+        def compute_y(x):
+            return x**2 + 4*x + 4
+        
+        def compute_gradient(x):
+            return 2*x + 4
+        
+        def perform_gradient_descent(learning_rate, initial_x, num_iterations):
+            x = initial_x
+            x_history = [x]
+            for _ in range(num_iterations):
+                gradient = compute_gradient(x)
+                x = x - learning_rate * gradient
+                x_history.append(x)
+            return x_history
+        
+        learning_rate = 0.1
+        initial_x = 5
+        num_iterations = 20
+        
+        x_history = perform_gradient_descent(learning_rate, initial_x, num_iterations)
+        x_values = np.linspace(-6, 6, 100)
+        
+        y_history = [compute_y(x) for x in x_history]
+        y_values = compute_y(x_values)
+        
+        plt.plot(x_values, y_values, label='y = x^2 + 4x + 4')
+        plt.scatter(x_history, y_history, color='red', label='steps')
+        
+        plt.title('Gradient Descent Example')
+        plt.xlabel('x')
+        plt.ylabel('y')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+
+    plot_gradient_descent()
+
+    mo.md('''
+
+    Optimization algorithms are used during the training phase to minimize the loss function. For each iteration (or step), the loss is minimized by adjusting the model's parameters in the direction that reduces the loss.
+
+    Gradient descent is the most commonly used optimization algorithm. It calculates the direction of the steepest decrease in the loss function, which is the goal of training: to reduce the loss.
+
+    The calculated gradient is then multiplied by the learning rate, which determines how much the weights will be adjusted (increased or decreased) in each step.
+
+    ''')
+    return plot_gradient_descent,
+
+
+@app.cell
 def __(mo):
-    mo.md("""TODO explain optimizer and sgd""")
+    mo.md(
+        """
+        Stochastic Gradient Descent (SGD) is a variant of gradient descent that uses batches of randomly selected items (hence stochastic) from the dataset to compute gradients.
+
+        If you have a dataset with 60,000 items (like Fashion MNIST) and use a batch size of 32 (Keras default), Keras will split the dataset into 1875 batches. The model will compute the forward pass, gradient, and loss 1875 times. 1875 weight updates will be performed as well, per epoch.
+
+        The use of batches reduces the memory and computation required in a single step during training. It's especially useful when using large datasets which may require too much computation or can be too big to fit in memory.
+
+        Due to its stochastic nature, it may not always converge to the global minimum loss. Also, since updates are more frequent, a smaller learning rate is recommended.
+        """
+    )
     return
 
 

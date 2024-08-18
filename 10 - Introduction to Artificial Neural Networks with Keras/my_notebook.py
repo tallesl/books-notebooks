@@ -285,9 +285,38 @@ def __(mo):
 
 
 @app.cell
-def __(mo):
-    mo.md("""TODO explain relu""")
-    return
+def __(mo, np, plt):
+    def relu(x):
+        return np.maximum(0, x)
+
+    x_values = np.linspace(-10, 10, 100)
+    y_values = relu(x_values)
+
+    plt.figure(figsize=(6, 4))
+    plt.plot(x_values, y_values, label='ReLU(x)')
+    plt.title('Rectified Linear Unit (ReLU)')
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.grid(True)
+    plt.show()
+
+    mo.md('''
+
+    The Rectified Linear Unit (ReLU) is defined as:
+
+    ```
+    ReLU(x) = max(0, x)
+    ```
+
+    What just means:
+
+    - If `x` is positive, returns x.
+    - If `x` is negative or zero, returns zero.
+
+    It's simplicity makes it very computationally efficient and it's one of the most used activation functions for hidden layers.
+
+    ''')
+    return relu, x_values, y_values
 
 
 @app.cell

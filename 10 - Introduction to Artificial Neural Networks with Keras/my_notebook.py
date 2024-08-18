@@ -389,9 +389,9 @@ def __(mo):
         """
         # 7 - Setting up a seed
 
-        Unless you have special hardware, computers use pseudo-random number generators. These generators use mathematical algorithms to produce sequences of numbers that seem random but are actually predictable if you know the seed value. By setting an initial seed, you ensure that every time you start the generator with the same seed, you get the same sequence of numbers.
+        Unless you have special hardware, computers use pseudo-random number generators. These generators use mathematical algorithms to produce sequences of numbers that seem random but are actually predictable if you know the seed value.
 
-        In other words, setting a seed helps with analysis and debugging by ensuring reproducible results.
+        By setting an initial seed, you ensure that every time you start the generator with the same seed, you get the same sequence of numbers. Setting a seed helps with analysis and debugging by ensuring reproducible results.
         """
     )
     return
@@ -457,9 +457,9 @@ def __(keras, mo):
 def __(mo):
     mo.md(
         """
-        You might have noticed a "rescaling" layer between the input layer and the first hidden layer. It's actually not a layer per se, it doesn't have weights or biases, it's a transformation configured on the model that happens right after the input layer passes forwards the data.
+        If you check the previous code, you'll notice a "rescaling" layer between the input layer and the first hidden layer. It's actually not a layer per se, it doesn't have weights or biases, it's a transformation configured on the model that happens right after the input layer passes forwards the data.
 
-        It multiplies the 0 to 255 value by (1/255), converting it to a floating pointer number from 0.0 to 1.0.
+        It multiplies the 0 to 255 value by 1/255, converting it to a floating pointer number from 0.0 to 1.0 (which can also be seem as a 0% to 100% range).
 
         Using floats allows for fine-grained representation of data, which is needed for effective learning and ensures that the model can capture subtle variations in the data.
         """

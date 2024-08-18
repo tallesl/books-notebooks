@@ -70,9 +70,9 @@ def __(mo, np):
 
     # 2 - Loading the Fashion MNIST dataset
 
-    We can download Fashion MNIST with Keras itself with keras.datasets.fashion_mnist.load_data()`. This would download the dataset to `~/.keras/datasets/fashion-mnist.npz`.
+    We can download Fashion MNIST with Keras itself with `keras.datasets.fashion_mnist.load_data()`. This would download the dataset to `~/.keras/datasets/fashion-mnist.npz`.
 
-    But let's load the file your own way instead.
+    But let's load the file our own way instead.
 
     We are reproducing some load functions from [here](https://github.com/zalandoresearch/fashion-mnist/blob/master/utils/mnist_reader.py), that's the same repository that hosts the dataset files (`.gz` files).
 
@@ -100,7 +100,7 @@ def __(load_images, load_labels, mo):
     (consecutive) pixels.
 
     The number of labels (and images) should be equal the number of (the entire 
-    dataset pixels) divided by 784.
+    dataset) pixels divided by 784.
 
     Loaded training set:
 
@@ -170,7 +170,7 @@ def __(label_description, mo, training_labels, training_pixels):
 
     Let's plot the first and last images of the training set as sample and check its label.
 
-    We take 784 pixels from the training set pixels and then by using NumPy's reshape method we change it to a 28x28 array.
+    We are taking 784 pixels from the training set and then by using NumPy's reshape method we change it to a 28x28 array.
 
     After that we handle our 2D array to Matplotlib and get the image plotted.
 
@@ -238,8 +238,8 @@ def __(mo):
 
     graph TD
         in["input layer<br>shape: (784,)"]
-        in --> hidden1["fully connected hidden layer<br>units: 300<br>activation function: ReLU"]
-        hidden1 --> hidden2["fully connected hidden layer<br>units: 100<br>activation function: ReLU"]
+        in --> hidden1["fully connected hidden layer #1<br>units: 300<br>activation function: ReLU"]
+        hidden1 --> hidden2["fully connected hidden layer #2<br>units: 100<br>activation function: ReLU"]
         hidden2 --> out["output layer<br>units: 10<br>activation function: Softmax"]
 
     ''')
@@ -498,13 +498,13 @@ def __(mo):
 
 @app.cell
 def __(mo):
-    mo.md(r'''
+    mo.md(
+        r"""
+        # 9 - Training the model
 
-    # 9 - Training the model
-
-    TODO explain training
-
-    ''')
+        TODO explain training
+        """
+    )
     return
 
 
@@ -521,10 +521,10 @@ def __(
 ):
     def plot_training(history):  
         plt.figure(figsize=(8, 5))  # Define the figure here before plotting
-        
+
         for key in history.keys():
             plt.plot(history[key], label=key)
-        
+
         plt.grid(True)
         plt.ylim(0, 1)
         plt.xlabel('Epoch')
@@ -547,7 +547,6 @@ def __(
 
     training_form = mo.ui.text(label='Epochs to train:', value='10').form(on_change=train)
     training_form
-
     return plot_training, train, training_form
 
 

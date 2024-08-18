@@ -289,7 +289,7 @@ def __(mo, np, plt):
     def plot_relu():
         x_values = np.linspace(-10, 10, 100)
         y_values = relu(x_values)
-        
+
         plt.figure(figsize=(6, 4))
         plt.plot(x_values, y_values, label='ReLU(x)')
         plt.title('Rectified Linear Unit (ReLU)')
@@ -423,6 +423,24 @@ def __(mo, np, seed_textbox, tf):
 
 
 @app.cell
+def __(mo, tf):
+    gpus = tf.config.experimental.list_physical_devices('GPU')
+    for gpu in gpus:
+      tf.config.experimental.set_memory_growth(gpu, True)
+
+    mo.md('''
+
+    # 8 - Creating our model
+
+    First, before creating our model, let's ensure that TensorFlow does not allocate all of our GPU memory by calling `.set_memory_growth(gpu, True)`.
+
+    More information on [tf.config.experimental.set_memory_growth](https://www.tensorflow.org/api_docs/python/tf/config/experimental/set_memory_growth) documentation.
+
+    ''')
+    return gpu, gpus
+
+
+@app.cell
 def __(keras, mo):
     layers= [
         keras.Input(shape=(784,), name='input'),
@@ -436,13 +454,11 @@ def __(keras, mo):
 
     mo.md(fr'''
 
-    # 7 - Creating our model
-
-    Let's instantiate our model now. After all the previous explanations, understanding the creation of this model should be straightforward. Note that "dense" just means the layer is fully connected.
+    Let's instantiate our model now. After all the previous explanations, understanding our model architecture should be straightforward. Note that "dense" just means the layer is fully connected.
 
     Naming the model and the layers is optional, but when providing names make sure to not use spaces, else you'll get a "not a valid root scope name" error later.
 
-    For further information check out the Keras documentation:
+    More information on Keras documentation:
 
     - [keras.Sequential](https://keras.io/api/models/sequential/)
     - [keras.Input](https://keras.io/api/layers/core_layers/input/)
@@ -542,9 +558,13 @@ def __(mo, model):
 
     mo.md('''
 
-    # 8 - Compiling the model
+    # 9 - Compiling the model, SGD, and cross-entropy
 
-    TODO explain what compiling the model means
+    Compiling a model means setting up all the need settings for its training:
+
+    - The optimization algorithm, stochastic gradient descent (SGD) in our case.
+    - The loss function, sparce categorical crossentropy in our case.
+    - The metrics displayed during training, just accuracy in our case (correct predictions / total predictions).
 
     More information on [keras.Model.compile](https://keras.io/api/models/model_training_apis#compile-method) documentation.
 
@@ -568,9 +588,16 @@ def __(mo):
 def __(mo):
     mo.md(
         r"""
-        # 9 - Training the model
+        # 10 - Training the model
 
-        TODO explain training
+        While training, TensorFlow displays a handy progress bar for the current epoch being training, along with the values:
+
+        - `accuracy`: the accuracy on the training set (0.45 means 45% accuracy for example).
+        - `loss`: the calculated loss on the training set, calculated by our loss function (the loss should decrease over time if the learning is effective)
+        - `val_accuracy`: the accuracy on the validation set
+        - `val_loss`: the calculated loss on the validation set
+
+        We also plot the variation of those values over time after the training is finished (all epochs are finish)
         """
     )
     return
@@ -613,7 +640,7 @@ def __(
 
             plot_training(history.history)
 
-    training_form = mo.ui.text(label='Epochs to train:', value='10').form(on_change=train)
+    training_form = mo.ui.text(label='Epochs to train:', value='30').form(on_change=train)
     training_form
     return plot_training, train, training_form
 
@@ -655,7 +682,20 @@ def __(compile_model, keras, mo, model, tf):
 
 @app.cell
 def __(mo):
-    mo.md(r"""# 10 - Classifying an image""")
+    mo.md(
+        r"""
+        # 11 - Classifying an image
+
+        Now that the training is done, let's make our model predict what the category for a single given image.
+
+        Below enter an index (0 to 9999) of an image to be picked from the validation set and hit Submit to see the results.
+
+        On the left side you'll see the chosen image and its category, on the right side there's probabilities calculated by the model for each category.
+
+
+        More information on [keras.Model.predict](https://keras.io/api/models/model_training_apis/#predict-method) documentation.
+        """
+    )
     return
 
 
@@ -714,19 +754,19 @@ def __(
 
 @app.cell
 def __(mo):
-    mo.md(r"""# 11 - Saving the model""")
+    mo.md(r"""# 12 - Saving the model""")
     return
 
 
 @app.cell
 def __(mo):
-    mo.md(r"""# 12 - Visualizing the learning with TensorBoard""")
+    mo.md(r"""# 13 - Visualizing the learning with TensorBoard""")
     return
 
 
 @app.cell
 def __(mo):
-    mo.md(r"""# 13 - Converting it to a TensorFlow Lite model and using it""")
+    mo.md(r"""# 14 - Converting it to a TensorFlow Lite model and using it""")
     return
 
 

@@ -711,13 +711,13 @@ def __(
         plt.show()
 
     def train(value):
-        epochs = valid_integer(value, 1, 1000)
+        epochs = valid_integer(value, 1, 999999)
         if epochs:
             history = model.fit(
                 x=training_images,
                 y=training_labels,
                 validation_data=(validation_images, validation_labels),
-                epochs=epochs
+                epochs=epochs,
             )
 
             plot_training(history.history)
@@ -858,7 +858,23 @@ def __(
 
 @app.cell
 def __(mo):
-    mo.md("""# 12 - Earling stopping""")
+    mo.md(
+        """
+        # 12 - Earling stopping
+
+        Keras allows us to configure the model to stop the training earlier, that is, to stop it when the training is good enough even if we didn't reach the number of epochs we set.
+
+        We can do that by setting an `EarlyStopping` callback. It also contains a parameter suggestively named "patience": how many further attempts it will try until giving up and stopping.
+
+        We just setup the early stop callback on the model (with 5 for patience) and you can now try it out for yourself:
+
+        - Click the button below to reset the model.
+        - Go back to the training cell and set epoch to a high number (like 999).
+        - Start the training and see when it will stop.
+
+        More information on [keras.callbacks.EarlyStopping](https://keras.io/api/callbacks/early_stopping/) documentation.
+        """
+    )
     return
 
 
@@ -869,7 +885,6 @@ def __(mo):
         # 13 - Saving and loading the model
 
         Saving and loading is straightforward, it's just a matter of calling `model.save('my_model.keras')` and `model.load('my_model.keras')`.
-
 
         More information on [keras.Model.save](https://keras.io/api/models/model_saving_apis/model_saving_and_loading/#save-method) and [keras.Model.load](https://keras.io/api/models/model_saving_apis/model_saving_and_loading/#loadmodel-function) documentation.
         """
@@ -886,6 +901,21 @@ def __(mo, model):
     save_model_form = mo.ui.text(label='Filename: ', value='fashion_mnist.keras').form(submit_button_label='Save model', on_change=save_model)
     save_model_form
     return save_model, save_model_form
+
+
+@app.cell
+def __(mo):
+    mo.md(
+        """
+        Keras provides a `ModelCheckpoint` callback that you can pass to your model to save it after every epoch. To ensure that only the best version of your model is saved, set the `save_best_only` parameter to `True`.
+
+        Even better, you can combine this with the `EarlyStopping` callback we discussed earlier. This way, you can leave your computer running, knowing that the training will automatically stop when it's no longer improving and that the best model will be saved when the training is complete!
+
+        More information on [keras.callbacks.ModelCheckpoint](https://keras.io/api/callbacks/model_checkpoint/) documentation.
+
+        """
+    )
+    return
 
 
 if __name__ == "__main__":

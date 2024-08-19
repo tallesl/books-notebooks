@@ -94,11 +94,11 @@ def __(label_description, matplotlib, mo, np):
     def plot_relu():
         def relu(x):
             return np.maximum(0, x)
-            
+
         x_values = np.linspace(-10, 10, 100)
         y_values = relu(x_values)
 
-        plt.figure(figsize=(6, 4))
+        plt.figure(figsize=(6, 4)) # 6x4 inches
         plt.plot(x_values, y_values, label='ReLU(x)')
         plt.title('Rectified Linear Unit (ReLU)')
         plt.xlabel('x')
@@ -107,7 +107,7 @@ def __(label_description, matplotlib, mo, np):
         plt.show()
 
     def plot_training(history):  
-        plt.figure(figsize=(8, 5))  # Define the figure here before plotting
+        plt.figure(figsize=(8, 5))  # 8x5 inches
 
         for key in history.keys():
             plt.plot(history[key], label=key)
@@ -122,17 +122,17 @@ def __(label_description, matplotlib, mo, np):
 
     def plot_model_png():
         img = matplotlib.image.imread('model.png')
-        plt.figure(figsize=(8, 8)) # display the image as 8 inch x 8 inch
+        plt.figure(figsize=(8, 8)) # 8x8 inches
         plt.axis('off') # not plotting x and y axis with the image
         plt.imshow(img)
         plt.show()
 
     def plot_prediction(image, label, prediction):
-        plt.figure(figsize=(6, 3))
+        plt.figure(figsize=(6, 3)) # 6x3 inches
 
         # subplot 1: label and image
         plt.subplot(1, 2, 1)
-        plt.imshow(image.reshape(28, 28), cmap='gray')
+        plt.imshow(image.reshape(28, 28), cmap='gray') #loading the gray scale image
         plt.title(f'{label} ({label_description[label]})')
         plt.axis('off') # not plotting x and y axis with the image
 
@@ -155,7 +155,7 @@ def __(label_description, matplotlib, mo, np):
     def plot_image_sample(image):
         plt.figure(figsize=(1,1)) # display the image as 1 inch x 1 inch
         plt.axis('off') # not plotting x and y axis with the image
-        plt.imshow(image, cmap='gray')
+        plt.imshow(image, cmap='gray') # loading the grayscale image
         plt.show()
 
     mo.md('''
@@ -286,9 +286,9 @@ def __(
 
     mo.md('''
 
-    Let's plot the first and last images of the training set as sample and check its label.
+    Let's plot the first and last images of the training set as examples and check its labels.
 
-    We are taking 784 pixels from the training set and then by using NumPy's reshape method we change it to a 28x28 array.
+    We are taking 784 pixels from the training set and then by using NumPy's reshape method to change it to a 28x28 array.
 
     After that we handle our 2D array to Matplotlib and get the image plotted.
 
@@ -382,13 +382,13 @@ def __(mo):
 
         From the input layer to the first hidden layer we have:
 
-        - 235200 weights (784 units of the input layer x 300 units of hidden layer #1)
-        - 300 biases (same amount of units of hidden layer #1)
+        - 235200 weights (784 units of the input layer x 300 units of the first hidden layer)
+        - 300 biases (same amount of units of the first hidden layer)
 
         From the first hidden layer to the second hidden layer we have:
 
-        - 30000 weights (300 units of hidden layer #1 x 100 units of hidden layer #2)
-        - 100 biases (same amount of units of hidden layer #2)
+        - 30000 weights (300 units of the first hidden layer x 100 units of the second hidden layer)
+        - 100 biases (same amount of units of the second hidden layer)
         """
     )
     return
@@ -423,13 +423,13 @@ def __(mo):
         r"""
         # 6 - Output layer and softmax
 
-        Lastly we have our output layer, which outputs 10 probabilities, one for each of the 10 categories of the dataset. The number with the highest probability is the model answer to "what is the category of the given image?". The higher the number, the more sure the model is that it belongs to such category.
+        Lastly, we have our output layer, which outputs 10 probabilities, one for each of the 10 categories of the dataset. The number with the highest probability is the model answer to "what is the category of the given image?". The higher the number, the more sure the model is that it belongs to such category.
 
         Categorizing data is also referred as "classification".
 
         Calculating the weights and biases, from the last hidden layer to the output layer, we have:
 
-        - 1000 weights (100 units of the hidden layer #2 x 10 units of the output layer)
+        - 1000 weights (100 units of the second hidden layer x 10 units of the output layer)
         - 10 biases (same amount of units of the output layer)
         """
     )
@@ -460,13 +460,13 @@ def __(mo):
 
         7.389 + 2.718+ 1.105 = 11.212
 
-        **Step 3: Calculate the proportion of the sum**
+        **Step 3: Calculate its proportion to the sum**
 
         - exp(2.0) / sum = 7.389 / 11.212 = 0.659
         - exp(1.0) / sum = 2.718 / 11.212 = 0.242
         - exp(0.1) / sum = 1.105 / 11.212 = 0.099
 
-        Here are the final probabilities that softmax gave us:
+        Here are the probabilities that softmax gives:
 
         Category   | Value | Probability
         --------   | ----- | -----------
@@ -484,7 +484,7 @@ def __(mo):
         """
         # 7 - Setting up a seed
 
-        Unless you have special hardware, computers use pseudo-random number generators. These generators use mathematical algorithms to produce sequences of numbers that seem random but are actually predictable if you know the seed value.
+        Unless using special hardware, computers use pseudo-random number generators. These generators use mathematical algorithms to produce sequences of numbers that seem random but are actually predictable if you know the seed value.
 
         By setting an initial seed, you ensure that every time you start the generator with the same seed, you get the same sequence of numbers. Setting a seed helps with analysis and debugging by ensuring reproducible results.
         """
@@ -568,7 +568,13 @@ def __(keras, mo):
 def __(mo):
     mo.md(
         """
-        If you check the previous code, you'll notice a "rescaling" layer between the input layer and the first hidden layer. It's actually not a layer per se, it doesn't have weights or biases, it's a transformation configured on the model that happens right after the input layer passes forwards the data.
+        If you check the previous code, you'll notice a "rescaling" layer between the input layer and the first hidden layer:
+
+        ```
+        keras.layers.Rescaling(scale=1./255, name='scale_to_0_1_range')
+        ```
+
+        It's actually not a layer per se, it doesn't have weights or biases, it's a transformation configured on the model that happens right after the input layer passes forwards the data.
 
         It multiplies the 0 to 255 value by 1/255, converting it to a floating pointer number from 0.0 to 1.0 (which can also be seem as a 0% to 100% range).
 
@@ -777,8 +783,10 @@ def __(mo):
 
         Hyperparameter         | Value
         --------------         |------
-        Activation function    | ReLU (hidden layers), Softmax (output layer)
-        Loss function          | Sparse categorical crossentropy
+        Number of hidden units | 300 (first hidden layer) and 100 (second hidden layer)
+        Number of output units | 10 (output layer)
+        Activation function    | ReLU (hidden layers) and Softmax (output layer)
+        Loss function          | Sparse Categorical Crossentropy
         Optimization algorithm | Stochastic Gradient Descent (SGD)
         Data type              | float32 (Keras default)
         Learning rate          | 0.01 (Keras default)

@@ -722,7 +722,7 @@ def __(
 
             plot_training(history.history)
 
-    training_form = mo.ui.text(label='Epochs to train:', value='30').form(on_change=train)
+    training_form = mo.ui.text(label='Epochs to train:', value='30').form(submit_button_label='Start training', on_change=train)
     training_form
     return plot_training, train, training_form
 
@@ -780,7 +780,7 @@ def __(compile_model, keras, mo, model, tf):
         compile_model()
         print('Done.')
 
-    button = mo.ui.run_button(label='Reset model weights', on_change=reset_weights)
+    button = mo.ui.run_button(label='Reset Model Weights', on_change=reset_weights)
     button
     return button, reset_weights
 
@@ -851,27 +851,41 @@ def __(
 
         plot_prediction(image, label, prediction[0])
 
-    prediction_form = mo.ui.text(label='Index from the validation to perform prediction:', value='12').form(on_change=predict)
+    prediction_form = mo.ui.text(label='Index of the image set to be picked from the validation set:', value='12').form(submit_button_label='Predict', on_change=predict)
     prediction_form
     return plot_prediction, predict, prediction_form
 
 
 @app.cell
 def __(mo):
-    mo.md(r"""# 12 - Saving the model and stopping it early""")
+    mo.md("""# 12 - Earling stopping""")
     return
 
 
 @app.cell
 def __(mo):
-    mo.md(r"""# 13 - Visualizing the learning with TensorBoard""")
+    mo.md(
+        r"""
+        # 13 - Saving and loading the model
+
+        Saving and loading is straightforward, it's just a matter of calling `model.save('my_model.keras')` and `model.load('my_model.keras')`.
+
+
+        More information on [keras.Model.save](https://keras.io/api/models/model_saving_apis/model_saving_and_loading/#save-method) and [keras.Model.load](https://keras.io/api/models/model_saving_apis/model_saving_and_loading/#loadmodel-function) documentation.
+        """
+    )
     return
 
 
 @app.cell
-def __(mo):
-    mo.md(r"""# 14 - Converting it to a TensorFlow Lite model and using it""")
-    return
+def __(mo, model):
+    def save_model(filename):
+        model.save(filename)
+        print(f'Saved model as "{filename}".')
+
+    save_model_form = mo.ui.text(label='Filename: ', value='fashion_mnist.keras').form(submit_button_label='Save model', on_change=save_model)
+    save_model_form
+    return save_model, save_model_form
 
 
 if __name__ == "__main__":

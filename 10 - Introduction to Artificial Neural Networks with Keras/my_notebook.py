@@ -24,7 +24,6 @@ def __(mo):
     tensorflow_version = tf.__version__
     keras_version = keras.__version__
 
-
     mo.md(f'''
 
     # 1 - Checking setup of needed libraries
@@ -36,8 +35,6 @@ def __(mo):
     - Pydot version: {pydot_version}
     - TensorFlow version: {tensorflow_version}
     - Keras version: {keras_version}
-
-    On the next section we'll load the training and validation set of images and labels from the Fashion MNIST dataset.
 
     ''')
     return (
@@ -51,6 +48,131 @@ def __(mo):
         pydot_version,
         tensorflow_version,
         tf,
+    )
+
+
+@app.cell
+def __(label_description, matplotlib, mo, np):
+    import matplotlib.pyplot as plt
+
+    def plot_gradient_descent():
+        def compute_y(x):
+            return x**2 + 4*x + 4
+
+        def compute_gradient(x):
+            return 2*x + 4
+
+        def perform_gradient_descent(learning_rate, initial_x, num_iterations):
+            x = initial_x
+            x_history = [x]
+            for _ in range(num_iterations):
+                gradient = compute_gradient(x)
+                x = x - learning_rate * gradient
+                x_history.append(x)
+            return x_history
+
+        learning_rate = 0.1
+        initial_x = 5
+        num_iterations = 20
+
+        x_history = perform_gradient_descent(learning_rate, initial_x, num_iterations)
+        x_values = np.linspace(-6, 6, 100)
+
+        y_history = [compute_y(x) for x in x_history]
+        y_values = compute_y(x_values)
+
+        plt.plot(x_values, y_values, label='y = x^2 + 4x + 4')
+        plt.scatter(x_history, y_history, color='red', label='steps')
+
+        plt.title('Gradient Descent Example')
+        plt.xlabel('x')
+        plt.ylabel('y')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+
+    def plot_relu():
+        def relu(x):
+            return np.maximum(0, x)
+            
+        x_values = np.linspace(-10, 10, 100)
+        y_values = relu(x_values)
+
+        plt.figure(figsize=(6, 4))
+        plt.plot(x_values, y_values, label='ReLU(x)')
+        plt.title('Rectified Linear Unit (ReLU)')
+        plt.xlabel('x')
+        plt.ylabel('y')
+        plt.grid(True)
+        plt.show()
+
+    def plot_training(history):  
+        plt.figure(figsize=(8, 5))  # Define the figure here before plotting
+
+        for key in history.keys():
+            plt.plot(history[key], label=key)
+
+        plt.grid(True)
+        plt.ylim(0, 1)
+        plt.xlabel('Epoch')
+        plt.ylabel('Value')
+        plt.title('Learning Curve')
+        plt.legend()
+        plt.show()
+
+    def plot_model_png():
+        img = matplotlib.image.imread('model.png')
+        plt.figure(figsize=(8, 8)) # display the image as 8 inch x 8 inch
+        plt.axis('off') # not plotting x and y axis with the image
+        plt.imshow(img)
+        plt.show()
+
+    def plot_prediction(image, label, prediction):
+        plt.figure(figsize=(6, 3))
+
+        # subplot 1: label and image
+        plt.subplot(1, 2, 1)
+        plt.imshow(image.reshape(28, 28), cmap='gray')
+        plt.title(f'{label} ({label_description[label]})')
+        plt.axis('off') # not plotting x and y axis with the image
+
+        # subplot 2: graph with prediction
+        plt.subplot(1, 2, 2)
+        plt.title('Prediction')
+        plt.xlabel('Category')
+        plt.ylabel('Probability')
+        plt.bar(range(10), prediction, color='blue') # 0 to 10 bar chart
+        plt.xticks(range(10)) # making sure X axis have 0 to 9 displayed
+        plt.ylim(0, 1.0) # making sure Y axis goes up to the maximum limit (1.0)
+
+        # formatting Y axis as percentage
+        formatter = matplotlib.ticker.PercentFormatter(xmax=1.0)
+        plt.gca().yaxis.set_major_formatter(formatter)
+
+        plt.tight_layout() # automatically adjust spaces between subplots
+        plt.show()
+
+    def plot_image_sample(image):
+        plt.figure(figsize=(1,1)) # display the image as 1 inch x 1 inch
+        plt.axis('off') # not plotting x and y axis with the image
+        plt.imshow(image, cmap='gray')
+        plt.show()
+
+    mo.md('''
+
+    On this cell we are defining some plot functions that will be used throughout this notebook.
+
+    On the next section we'll load the training and validation set of images and labels from the Fashion MNIST dataset.
+
+    ''')
+    return (
+        plot_gradient_descent,
+        plot_image_sample,
+        plot_model_png,
+        plot_prediction,
+        plot_relu,
+        plot_training,
+        plt,
     )
 
 
@@ -95,12 +217,9 @@ def __(load_images, load_labels, mo):
 
     mo.md(f'''
 
-    The Fashion MNIST dataset gives us 28x28 grayscale images. Each grayscale pixel
-    is a single number going from 0 (white) to 255 (black). 28x28 gives us 784
-    (consecutive) pixels.
+    The Fashion MNIST dataset gives us 28x28 grayscale images. Each grayscale pixel is a single number going from 0 (white) to 255 (black). 28x28 gives us 784 (consecutive) pixels.
 
-    The number of labels (and images) should be equal the number of (the entire 
-    dataset) pixels divided by 784.
+    The number of labels (and images) should be equal the number of (the entire dataset) pixels divided by 784.
 
     Loaded training set:
 
@@ -141,15 +260,14 @@ def __(load_images, load_labels, mo):
 
 
 @app.cell
-def __(label_description, mo, training_labels, training_pixels):
-    import matplotlib.pyplot as plt
+def __(
+    label_description,
+    mo,
+    plot_image_sample,
+    training_labels,
+    training_pixels,
+):
     from time import sleep
-
-    def plot_sample(image):
-        plt.figure(figsize=(1,1)) # display the image as 1 inch x 1 inch
-        plt.axis('off') # not plotting x and y axis with the image
-        plt.imshow(image, cmap='gray')
-        plt.show()
 
     first_image = training_pixels[:784].reshape((28,28))
     first_label = training_labels[0]
@@ -157,13 +275,13 @@ def __(label_description, mo, training_labels, training_pixels):
     last_image = training_pixels[-784:].reshape((28,28))
     last_label = training_labels[-1]
 
-    plot_sample(first_image)
+    plot_image_sample(first_image)
     print(label_description[first_label])
 
     sleep(0.01) # ugly fix to ensure plotting in the correct order
     print()
 
-    plot_sample(last_image)
+    plot_image_sample(last_image)
     print(label_description[last_label])
 
     mo.md('''
@@ -175,15 +293,7 @@ def __(label_description, mo, training_labels, training_pixels):
     After that we handle our 2D array to Matplotlib and get the image plotted.
 
     ''')
-    return (
-        first_image,
-        first_label,
-        last_image,
-        last_label,
-        plot_sample,
-        plt,
-        sleep,
-    )
+    return first_image, first_label, last_image, last_label, sleep
 
 
 @app.cell
@@ -285,22 +395,7 @@ def __(mo):
 
 
 @app.cell
-def __(mo, np, plt):
-    def plot_relu():
-        x_values = np.linspace(-10, 10, 100)
-        y_values = relu(x_values)
-
-        plt.figure(figsize=(6, 4))
-        plt.plot(x_values, y_values, label='ReLU(x)')
-        plt.title('Rectified Linear Unit (ReLU)')
-        plt.xlabel('x')
-        plt.ylabel('y')
-        plt.grid(True)
-        plt.show()
-
-    def relu(x):
-        return np.maximum(0, x)
-
+def __(mo, plot_relu):
     plot_relu()
 
     mo.md('''
@@ -319,7 +414,7 @@ def __(mo, np, plt):
     It's simplicity makes it computationally efficient and it's one of the most used activation functions for hidden layers.
 
     ''')
-    return plot_relu, relu
+    return
 
 
 @app.cell
@@ -503,7 +598,7 @@ def __(mo):
         if int_value:
             print(f'{int_value} x (1./255) = {int_value * (1./255)}')
 
-    rescaling_textbox = mo.ui.text(label='Enter a value from 0 to 255:', on_change=rescaling_textbox_change)
+    rescaling_textbox = mo.ui.text(label='Enter a value from 0 to 255 to covert it to 0.0 to 1.0 range:', on_change=rescaling_textbox_change)
     rescaling_textbox
     return rescaling_textbox, rescaling_textbox_change, valid_integer
 
@@ -523,14 +618,7 @@ def __(mo, model):
 
 
 @app.cell
-def __(keras, matplotlib, mo, model, plt):
-    def plot_model_png():
-        img = matplotlib.image.imread('model.png')
-        plt.figure(figsize=(8, 8)) # display the image as 8 inch x 8 inch
-        plt.axis('off') # not plotting x and y axis with the image
-        plt.imshow(img)
-        plt.show()
-
+def __(keras, mo, model, plot_model_png):
     keras.utils.plot_model(model, to_file='model.png', show_shapes=True, show_dtype=True, show_layer_names=True, show_layer_activations=True)
 
     plot_model_png()
@@ -542,7 +630,7 @@ def __(keras, matplotlib, mo, model, plt):
     More information on [keras.utils.plot_model](https://keras.io/api/utils/model_plotting_utils/) documentation.
 
     ''')
-    return plot_model_png,
+    return
 
 
 @app.cell
@@ -573,43 +661,7 @@ def __(mo, model):
 
 
 @app.cell
-def __(mo, np, plt):
-    def plot_gradient_descent():
-        def compute_y(x):
-            return x**2 + 4*x + 4
-
-        def compute_gradient(x):
-            return 2*x + 4
-
-        def perform_gradient_descent(learning_rate, initial_x, num_iterations):
-            x = initial_x
-            x_history = [x]
-            for _ in range(num_iterations):
-                gradient = compute_gradient(x)
-                x = x - learning_rate * gradient
-                x_history.append(x)
-            return x_history
-
-        learning_rate = 0.1
-        initial_x = 5
-        num_iterations = 20
-
-        x_history = perform_gradient_descent(learning_rate, initial_x, num_iterations)
-        x_values = np.linspace(-6, 6, 100)
-
-        y_history = [compute_y(x) for x in x_history]
-        y_values = compute_y(x_values)
-
-        plt.plot(x_values, y_values, label='y = x^2 + 4x + 4')
-        plt.scatter(x_history, y_history, color='red', label='steps')
-
-        plt.title('Gradient Descent Example')
-        plt.xlabel('x')
-        plt.ylabel('y')
-        plt.legend()
-        plt.grid(True)
-        plt.show()
-
+def __(mo, plot_gradient_descent):
     plot_gradient_descent()
 
     mo.md('''
@@ -621,7 +673,7 @@ def __(mo, np, plt):
     The calculated gradient is then multiplied by the learning rate, which determines how much the weights will be adjusted (increased or decreased) in each step.
 
     ''')
-    return plot_gradient_descent,
+    return
 
 
 @app.cell
@@ -689,27 +741,13 @@ def __(mo):
 def __(
     mo,
     model,
-    plt,
+    plot_training,
     training_images,
     training_labels,
     valid_integer,
     validation_images,
     validation_labels,
 ):
-    def plot_training(history):  
-        plt.figure(figsize=(8, 5))  # Define the figure here before plotting
-
-        for key in history.keys():
-            plt.plot(history[key], label=key)
-
-        plt.grid(True)
-        plt.ylim(0, 1)
-        plt.xlabel('Epoch')
-        plt.ylabel('Value')
-        plt.title('Learning Curve')
-        plt.legend()
-        plt.show()
-
     def train(value):
         epochs = valid_integer(value, 1, 999999)
         if epochs:
@@ -724,7 +762,7 @@ def __(
 
     training_form = mo.ui.text(label='Epochs to train:', value='30').form(submit_button_label='Start training', on_change=train)
     training_form
-    return plot_training, train, training_form
+    return train, training_form
 
 
 @app.cell
@@ -750,7 +788,6 @@ def __(mo):
         These settings are well-suited for our proposed classification problem, but you are welcome to experiment with different values and observe how the model behaves.
 
         For your convenience, there's a button below to reset the model to its initial state with random weights.
-
         """
     )
     return
@@ -805,40 +842,13 @@ def __(mo):
 
 @app.cell
 def __(
-    label_description,
-    matplotlib,
     mo,
     model,
-    plt,
+    plot_prediction,
     valid_integer,
     validation_images,
     validation_labels,
 ):
-    def plot_prediction(image, label, prediction):
-        plt.figure(figsize=(6, 3))
-
-        # subplot 1: label and image
-        plt.subplot(1, 2, 1)
-        plt.imshow(image.reshape(28, 28), cmap='gray')
-        plt.title(f'{label} ({label_description[label]})')
-        plt.axis('off') # not plotting x and y axis with the image
-
-        # subplot 2: graph with prediction
-        plt.subplot(1, 2, 2)
-        plt.title('Prediction')
-        plt.xlabel('Category')
-        plt.ylabel('Probability')
-        plt.bar(range(10), prediction, color='blue') # 0 to 10 bar chart
-        plt.xticks(range(10)) # making sure X axis have 0 to 9 displayed
-        plt.ylim(0, 1.0) # making sure Y axis goes up to the maximum limit (1.0)
-
-        # formatting Y axis as percentage
-        formatter = matplotlib.ticker.PercentFormatter(xmax=1.0)
-        plt.gca().yaxis.set_major_formatter(formatter)
-
-        plt.tight_layout() # automatically adjust spaces between subplots
-        plt.show()
-
     def predict(i):
         int_value = valid_integer(i, 0, len(validation_images))
 
@@ -853,7 +863,7 @@ def __(
 
     prediction_form = mo.ui.text(label='Index of the image set to be picked from the validation set:', value='12').form(submit_button_label='Predict', on_change=predict)
     prediction_form
-    return plot_prediction, predict, prediction_form
+    return predict, prediction_form
 
 
 @app.cell
@@ -912,7 +922,6 @@ def __(mo):
         Even better, you can combine this with the `EarlyStopping` callback we discussed earlier. This way, you can leave your computer running, knowing that the training will automatically stop when it's no longer improving and that the best model will be saved when the training is complete!
 
         More information on [keras.callbacks.ModelCheckpoint](https://keras.io/api/callbacks/model_checkpoint/) documentation.
-
         """
     )
     return

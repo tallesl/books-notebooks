@@ -1,6 +1,8 @@
 *.h5
+*.keras
 *.pyc
 *.swp
 .ipynb_checkpoints
 __pycache__/
+model.png
 venv/

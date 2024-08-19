@@ -882,7 +882,16 @@ def __(mo):
 
         Keras allows us to configure the model to stop the training earlier, that is, to stop it when the training is good enough even if we didn't reach the number of epochs we set.
 
-        We can do that by setting an `EarlyStopping` callback. It also contains a parameter suggestively named "patience": how many further attempts it will try until giving up and stopping.
+        We can do that by setting an `EarlyStopping` callback. It also contains a parameter suggestively named "patience": how many further attempts it will try until giving up and stopping:
+
+        ```
+        early_stopping = keras.callbacks.EarlyStopping(patience=5, restore_best_weights=True)
+
+        model.fit(
+            ...,
+            callbacks=[early_stopping]
+        )
+        ```
 
         We just setup the early stop callback on the model (with 5 for patience) and you can now try it out for yourself:
 
@@ -927,7 +936,19 @@ def __(mo):
         """
         Keras provides a `ModelCheckpoint` callback that you can pass to your model to save it after every epoch. To ensure that only the best version of your model is saved, set the `save_best_only` parameter to `True`.
 
-        Even better, you can combine this with the `EarlyStopping` callback we discussed earlier. This way, you can leave your computer running, knowing that the training will automatically stop when it's no longer improving and that the best model will be saved when the training is complete!
+        Even better, you can combine this with the `EarlyStopping` callback we discussed earlier:
+
+        ```
+        model_checkpoint = keras.callbacks.ModelCheckpoint('my_model.keras', save_best_only=true)
+        early_stopping = keras.callbacks.EarlyStopping(patience=5, restore_best_weights=True)
+
+        model.fit(
+            ...,
+            callbacks=[model_checkpoint, early_stopping]
+        )
+        ```
+
+        This way, you can leave your computer running, knowing that the training will automatically stop when it's no longer improving and that the best model will be saved when the training is complete!
 
         More information on [keras.callbacks.ModelCheckpoint](https://keras.io/api/callbacks/model_checkpoint/) documentation.
         """

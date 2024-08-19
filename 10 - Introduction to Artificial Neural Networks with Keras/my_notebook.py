@@ -10,7 +10,7 @@ def __():
     return mo,
 
 
-@app.cell(hide_code=True)
+@app.cell
 def __(mo):
     import matplotlib
     import numpy as np
@@ -577,10 +577,10 @@ def __(mo, np, plt):
     def plot_gradient_descent():
         def compute_y(x):
             return x**2 + 4*x + 4
-        
+
         def compute_gradient(x):
             return 2*x + 4
-        
+
         def perform_gradient_descent(learning_rate, initial_x, num_iterations):
             x = initial_x
             x_history = [x]
@@ -589,20 +589,20 @@ def __(mo, np, plt):
                 x = x - learning_rate * gradient
                 x_history.append(x)
             return x_history
-        
+
         learning_rate = 0.1
         initial_x = 5
         num_iterations = 20
-        
+
         x_history = perform_gradient_descent(learning_rate, initial_x, num_iterations)
         x_values = np.linspace(-6, 6, 100)
-        
+
         y_history = [compute_y(x) for x in x_history]
         y_values = compute_y(x_values)
-        
+
         plt.plot(x_values, y_values, label='y = x^2 + 4x + 4')
         plt.scatter(x_history, y_history, color='red', label='steps')
-        
+
         plt.title('Gradient Descent Example')
         plt.xlabel('x')
         plt.ylabel('y')
@@ -675,7 +675,11 @@ def __(mo):
         - `val_accuracy`: the accuracy on the validation set
         - `val_loss`: the calculated loss on the validation set
 
-        We also plot the variation of those values over time after the training is finished (all epochs are finish)
+        We also plot the variation of those values over time after the training is finished (all epochs are finish).
+
+        The Fashion MNIST dataset already gives a set for training and another for validation separately. But when we have the desired training and validation data loaded in a single dataset, we can use the parameter `validation_split` to let Keras split the dataset for us. For instance, a `validation_split=0.15` reserves the last 15% portion of the dataset to be used as validation.
+
+        More information on [keras.Model.fit](https://keras.io/api/models/model_training_apis/#fit-method) documentation.
         """
     )
     return
@@ -725,7 +729,30 @@ def __(
 
 @app.cell
 def __(mo):
-    mo.md("""If you want to reset the model with random weights, to experiment on your own, you can use the button below.""")
+    mo.md(
+        r"""
+        When creating and training a model, it's important to pay attention to its hyperparameters. These are, roughly speaking, the model's settings. The term "hyper" is used to distinguish them from "parameters," which some people refer to as the model's internal values (like weights and biases).
+
+        If your model is not achieving the expected results, it's worth experimenting with different hyperparameters to see if performance improves.
+
+        Here are the hyperparameters of our model:
+
+        Hyperparameter         | Value
+        --------------         |------
+        Activation function    | ReLU (hidden layers), Softmax (output layer)
+        Loss function          | Sparse categorical crossentropy
+        Optimization algorithm | Stochastic Gradient Descent (SGD)
+        Data type              | float32 (Keras default)
+        Learning rate          | 0.01 (Keras default)
+        Batch size             | 32 (Keras default)
+        Training epochs        | 30
+
+        These settings are well-suited for our proposed classification problem, but you are welcome to experiment with different values and observe how the model behaves.
+
+        For your convenience, there's a button below to reset the model to its initial state with random weights.
+
+        """
+    )
     return
 
 
@@ -753,7 +780,7 @@ def __(compile_model, keras, mo, model, tf):
         compile_model()
         print('Done.')
 
-    button = mo.ui.run_button(on_change=reset_weights)
+    button = mo.ui.run_button(label='Reset model weights', on_change=reset_weights)
     button
     return button, reset_weights
 
@@ -769,7 +796,6 @@ def __(mo):
         Below enter an index (0 to 9999) of an image to be picked from the validation set and hit Submit to see the results.
 
         On the left side you'll see the chosen image and its category, on the right side there's probabilities calculated by the model for each category.
-
 
         More information on [keras.Model.predict](https://keras.io/api/models/model_training_apis/#predict-method) documentation.
         """
@@ -832,7 +858,7 @@ def __(
 
 @app.cell
 def __(mo):
-    mo.md(r"""# 12 - Saving the model""")
+    mo.md(r"""# 12 - Saving the model and stopping it early""")
     return
 
 

@@ -411,7 +411,7 @@ def __(keras):
 @app.cell
 def __(ResetStatesCallback, dataset, model):
     model.compile(loss="sparse_categorical_crossentropy", optimizer="adam")
-    stateful_history = model.fit(dataset, epochs=20,
+    stateful_history = model.fit(dataset, epochs=2,
                         callbacks=[ResetStatesCallback()])
     return stateful_history,
 

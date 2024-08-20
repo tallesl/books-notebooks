@@ -1,4 +1,4 @@
 ```
 $ pip install marimo
-$ marimo edit my_notebook.py
+$ marimo edit marimo_fashion_mnist.py
 ```

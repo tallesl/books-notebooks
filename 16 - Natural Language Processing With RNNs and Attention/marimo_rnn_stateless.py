@@ -111,127 +111,132 @@ def __(mo):
 def __(mo):
     input_filepath = 'harry-potter.txt'
 
-    with open(input_filepath) as f:
-        all_text = f.read()
-
-    print(f'{all_text[:200]}...')
+    with open(input_filepath, 'r', encoding='utf-8') as file:
+        all_text = file.read()
 
     mo.md(f'''
 
-    Loading the entire "{input_filepath}" file to memory.
+    Loading the entire "{input_filepath}" file to memory:
 
-    Total number of characters: {len(all_text)}
+    "{all_text[:200]}..."
 
     ''')
-    return all_text, f, input_filepath
+    return all_text, file, input_filepath
 
 
 @app.cell
-def __(all_text, mo, tf):
-    vectorize_layer = tf.keras.layers.TextVectorization(
-        split='character',
-        standardize='lower_and_strip_punctuation'
-    )
+def __(all_text, keras, tf):
+    batch_size = 32
+    char_per_step = 100
+    window_size = char_per_step + 1
 
-    vectorize_layer.adapt(all_text)
+    vectorizer = keras.layers.TextVectorization(standardize='lower_and_strip_punctuation', split='character')
 
-    vocabulary = vectorize_layer.get_vocabulary()
+    vectorizer.adapt(all_text)
+
+    vocabulary = vectorizer.get_vocabulary()
     vocabulary_size = len(vocabulary)
 
-    mo.md(f'''
+    def split_input_and_target(windows):
+        input = windows[:, :-1] # excludes the last token of the window, window size - 1 vector
+        target = windows[:, 1:]  # excludes the first token of the window, windows size - 1 vector
+        return (input, target)
 
-    Creating a [TextVectorization](https://keras.io/api/layers/preprocessing_layers/text/text_vectorization/) object with our loaded text. This will not only help now when loading the dataset but will also be used later as a preprocessing layer on our model.
+    all_text_vectorized = vectorizer(all_text)
 
-    Vocabulary: {vocabulary}
+    dataset = tf.data.Dataset.from_tensor_slices(all_text_vectorized)
 
-    Vocabulary size: {vocabulary_size}
+    dataset = dataset.window(window_size, shift=1, drop_remainder=True)
 
-    ''')
-    return vectorize_layer, vocabulary, vocabulary_size
+    dataset = dataset.shuffle(10000)
 
+    dataset = dataset.flat_map(lambda window: window.batch(window_size))
 
-@app.cell
-def __(mo, vectorize_layer, vocabulary):
-    def vector_to_text(vector):
-        return ''.join(vocabulary[n] for n in vector)
+    dataset = dataset.batch(batch_size)
 
-    sample_text = "Hello world!"
+    dataset = dataset.map(split_input_and_target)
 
-    vectorized_text = vectorize_layer(sample_text)
-    reconstructed_text = vector_to_text(vectorized_text)
+    dataset = dataset.map(lambda X_batch, Y_batch: (tf.one_hot(X_batch, depth=vocabulary_size), Y_batch))
 
-    mo.md(f'''
-
-    Converting "{sample_text}" to vector: {vectorized_text}
-
-    Reconstructing the text from the vector: "{reconstructed_text}"
-
-    ''')
-    return reconstructed_text, sample_text, vector_to_text, vectorized_text
-
-
-@app.cell
-def __(all_text, tf):
-    batch_size = 32
-    characters_per_step = 100
-    window_size = characters_per_step + 1
-
-    # Step 1: Convert the entire text into a TensorFlow tensor
-    text_tensor = tf.constant(all_text)
-
-    # Step 2: Split the text tensor into individual characters using TensorFlow's built-in operations
-    char_dataset = tf.data.Dataset.from_tensor_slices(tf.strings.unicode_split(text_tensor, 'UTF-8'))
-
-    # Step 3: Build a StringLookup layer to map characters to integer indices
-    lookup_layer = tf.keras.layers.StringLookup(vocabulary=list(set(all_text)), mask_token=None)
-
-    def dataset_to_tensor(window):
-        # Batch the elements in the window to create a single tensor of shape (window_size,)
-        return window.batch(window_size)
-
-    def split_input_target(window):
-        # Ensure the tensor has at least rank 2 before slicing
-        X = window[:, :-1]  # Take all except the last character for input
-        Y = window[:, 1:]   # Take all except the first character for target
-        return X, Y
-
-    def one_hot_encode(X_batch, Y_batch):
-        # Convert characters to integer indices
-        X_batch = lookup_layer(X_batch)
-        # One-hot encode the input characters using the vocabulary size
-        depth = tf.cast(lookup_layer.vocabulary_size(), tf.int32)
-        return tf.one_hot(X_batch, depth=depth), Y_batch
-
-    dataset = (
-        char_dataset
-        .window(window_size, shift=1, drop_remainder=True)  # Create overlapping windows
-        .flat_map(dataset_to_tensor)  # Convert windows to tensors
-        .shuffle(10000)  # Shuffle the dataset
-        .batch(batch_size)  # Batch the dataset
-        .map(split_input_target)  # Split into input and target
-        .map(one_hot_encode)  # Convert to indices and one-hot encode
-        .prefetch(1)  # Prefetch for performance
-    )
-
-    # Debugging step: Print shapes of batches
-    for X_batch, Y_batch in dataset.take(1):
-        print("X_batch shape:", X_batch.shape)  # Should be (batch_size, characters_per_step, vocabulary_size)
-        print("Y_batch shape:", Y_batch.shape)  # Should be (batch_size, characters_per_step)
-
+    dataset = dataset.prefetch(tf.data.AUTOTUNE)
     return (
-        X_batch,
-        Y_batch,
+        all_text_vectorized,
         batch_size,
-        char_dataset,
-        characters_per_step,
+        char_per_step,
         dataset,
-        dataset_to_tensor,
-        lookup_layer,
-        one_hot_encode,
-        split_input_target,
-        text_tensor,
+        split_input_and_target,
+        vectorizer,
+        vocabulary,
+        vocabulary_size,
         window_size,
     )
+
+
+@app.cell
+def __(dataset, keras, vocabulary_size):
+    model = keras.models.Sequential([
+        keras.layers.GRU(128, return_sequences=True, input_shape=[None, vocabulary_size],
+                         #dropout=0.2, recurrent_dropout=0.2),
+                         dropout=0.2),
+        keras.layers.GRU(128, return_sequences=True,
+                         #dropout=0.2, recurrent_dropout=0.2),
+                         dropout=0.2),
+        keras.layers.TimeDistributed(keras.layers.Dense(vocabulary_size,
+                                                        activation="softmax"))
+    ])
+    model.compile(loss="sparse_categorical_crossentropy", optimizer="adam")
+    history = model.fit(dataset, epochs=5)
+    return history, model
+
+
+@app.cell
+def __(model, np, tf, vectorizer, vocabulary, vocabulary_size):
+    def vector_to_string(vector):
+        return ''.join(vocabulary[i] for i in vector)
+
+
+    def vector_to_char(vector):
+        return vocabulary[vector.numpy().item()]
+
+    def preprocess(texts):
+        X = np.array(vectorizer(texts))
+        return tf.one_hot(X, vocabulary_size)
+
+    def next_char(text, temperature=1):
+        X_new = preprocess([text])
+        logits = model(X_new)[0, -1, :] / temperature
+        char_id = tf.random.categorical(logits[tf.newaxis, :], num_samples=1)
+        return vector_to_char(char_id)
+
+    def complete_text(text, n_chars=50, temperature=1):
+        for _ in range(n_chars):
+            text += next_char(text, temperature)
+        return text
+    return (
+        complete_text,
+        next_char,
+        preprocess,
+        vector_to_char,
+        vector_to_string,
+    )
+
+
+@app.cell
+def __(complete_text):
+    print(complete_text("Harr", temperature=0.2))
+    return
+
+
+@app.cell
+def __(complete_text):
+    print(complete_text("Harr", temperature=1))
+    return
+
+
+@app.cell
+def __(complete_text):
+    print(complete_text("Harr", temperature=2))
+    return
 
 
 if __name__ == "__main__":

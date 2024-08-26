@@ -1,3 +1,4 @@
 marimo
 matplotlib
+pydot
 tensorflow[and-cuda]

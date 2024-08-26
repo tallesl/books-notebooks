@@ -34,6 +34,8 @@ all_text_vectorized = vectorizer(all_text)
 print()
 print('from_tensor_slices -> creates the dataset from a vector of indexes')
 dataset = tf.data.Dataset.from_tensor_slices(all_text_vectorized)
+
+
 for i, vector in dataset.enumerate().take(3):
     print(f'#{i}: {vector}')
     print(f'#{i}: \'{vector_to_char(vector)}\'')

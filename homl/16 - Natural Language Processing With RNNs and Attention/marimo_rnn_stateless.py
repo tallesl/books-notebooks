@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.8.0"
+__generated_with = "0.8.1"
 app = marimo.App(width="medium")
 
 
@@ -109,7 +109,7 @@ def __(mo):
 
 @app.cell
 def __(mo):
-    input_filepath = 'harry-potter.txt'
+    input_filepath = 'principe.txt'
 
     with open(input_filepath, 'r', encoding='utf-8') as file:
         all_text = file.read()
@@ -173,20 +173,45 @@ def __(all_text, keras, tf):
 
 
 @app.cell
-def __(dataset, keras, vocabulary_size):
+def __(keras):
+    model_checkpoint = keras.callbacks.ModelCheckpoint(
+        filepath='epoch_{epoch:02d}_loss_{loss:.2f}.weights.h5',
+        monitor='loss',
+        save_best_only=True,
+        save_weights_only=True,
+        mode='min',
+        verbose=1
+    )
+    return model_checkpoint,
+
+
+@app.cell
+def __(keras, vocabulary_size):
+    early_stopping = keras.callbacks.EarlyStopping(patience=10, restore_best_weights=True)
+
     model = keras.models.Sequential([
-        keras.layers.GRU(128, return_sequences=True, input_shape=[None, vocabulary_size],
-                         #dropout=0.2, recurrent_dropout=0.2),
-                         dropout=0.2),
-        keras.layers.GRU(128, return_sequences=True,
-                         #dropout=0.2, recurrent_dropout=0.2),
-                         dropout=0.2),
+        keras.layers.GRU(128, return_sequences=True, input_shape=[None, vocabulary_size], dropout=0.2),
+        keras.layers.GRU(128, return_sequences=True, dropout=0.2),
         keras.layers.TimeDistributed(keras.layers.Dense(vocabulary_size,
                                                         activation="softmax"))
     ])
+
     model.compile(loss="sparse_categorical_crossentropy", optimizer="adam")
-    history = model.fit(dataset, epochs=5)
-    return history, model
+
+    return early_stopping, model
+
+
+@app.cell
+def __(model):
+    model.load_weights('epoch_05_loss_0.86.weights.h5')
+
+    return
+
+
+@app.cell
+def __(dataset, early_stopping, model, model_checkpoint):
+    history = model.fit(dataset, epochs=9999, callbacks=[model_checkpoint, early_stopping])
+    return history,
 
 
 @app.cell
@@ -223,19 +248,36 @@ def __(model, np, tf, vectorizer, vocabulary, vocabulary_size):
 
 @app.cell
 def __(complete_text):
-    print(complete_text("Harr", temperature=0.2))
+    beginning = 'princ'
+
+    def preview(beginning, temperature):
+        print(f'{temperature}: {complete_text(beginning, temperature=temperature)}')
+
+    for _ in range(3):
+        preview(beginning, 0.001)
+        preview(beginning, 0.01)
+        preview(beginning, 0.1)
+        preview(beginning, 1)
+        preview(beginning, 2)
+        print()
+    return beginning, preview
+
+
+@app.cell
+def __(model):
+    model.summary()
     return
 
 
 @app.cell
-def __(complete_text):
-    print(complete_text("Harr", temperature=1))
+def __(vocabulary):
+    vocabulary
     return
 
 
 @app.cell
-def __(complete_text):
-    print(complete_text("Harr", temperature=2))
+def __(model):
+    model.layers[0].weights
     return
 
 

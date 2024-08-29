@@ -172,19 +172,19 @@ def __(dot, mo, step):
 
     The perceptron works like this:
 
-    - Takes 𝑛 same sized inputs, it can be scalar values or multidimensional matrices (x₁, x₂, x₃)
+    - Takes 𝑛 inputs of the same size, which can be scalar values or vectors (x₁, x₂, x₃)
     - Multiply each input by its own weight, a floating point number (w₁, w₂, w₃)
-    - Perform summation of the weighted inputs ( ∑ )
-    - Add a bias to shift the function from its center (b)
-    - Pass the value to the step function (step)
+    - Sum the weighted inputs ( ∑ )
+    Add a bias term to shift the function, sliding its line to either the left or right on a graph (b)
+    - Pass the sum through the step function to get the final output (step)
 
-    The math looks like:
+    The output is calculated as:
 
     ```
     output = step(dot(x_values, w_values) + b)
     ```
 
-    Let's understand each part individually below.
+    Let's understand each individual component of this computation below.
 
     ''')
     return compute_perceptron,
@@ -202,7 +202,7 @@ def __(mo):
         (x₁ * w₁) + (x₂ * w₂) + (x₃ * w₃)
         ```
 
-        Let's take the following values as example:
+        Let's take the following values as an example:
 
         Variable | Value
         -------- | -----
@@ -213,7 +213,7 @@ def __(mo):
         w₂       | 0.2
         w₃       | 0.3
 
-        That gives us:
+        This results in:
 
         ```
         (1 * 0.1) + (2 * 0.2) + (3 * 0.3) =
@@ -221,7 +221,7 @@ def __(mo):
         1.4
         ```
 
-        Since x and w are equally sized, we can use the mathematical dot product function to perform the same summation we just saw above. Dot product is an operation that takes two equal-length sequences of numbers and returns a single number:
+        Since x and w are of equal length, we can use the mathematical dot product operation to perform the summation we just saw above. Dot product takes two equal-length sequences of numbers and returns a single number:
 
         $$
         \mathbf{x} \cdot \mathbf{w} = 
@@ -243,11 +243,11 @@ def __(mo, plot_sigmoid_bias):
 
     # Bias
 
-    A common technique to shift a function curve to the left or to the right is to add a (constant) value to its input. This added value is referred to as "bias".
+    A common technique to shift a function curve left or right is to add a (constant) value to its input, known as a "bias".
 
-    To illustrate, you can see the sigmoid function in blue, which for x = 0 we get y = 1. By subtracting 1 (bias = -1), we can shift the function to the right, now for x = 0 we get y = 0.27 (which is just sigmoid(-1)).
+    To illustrate, consider the sigmoid function (in blue). Normally, for for x = 0, y = 1. By adding a bias of -1, we shift the function to the right, now for x = 0, y = 0.27 (which is just sigmoid(-1)).
 
-    Don't worry about the sigmoid function as of now, it will be introduced later on this notebook.
+    Don't worry about the sigmoid function for now, it will be introduced later on this notebook.
 
     ''')
     return
@@ -461,18 +461,18 @@ def __(dot, mo, sigmoid):
 
     def compute_xor(value_a, value_b):
         layers = [
-        
+
             # hidden layer
             [[20., 20., -30], [20., 20., -10.]],
-        
+
             # output layer
             [[-60., 60., -30.]]
-            
+
         ]
-        
+
         outputs = compute_network(layers, [value_a, value_b])
         last_output = outputs[-1][0]
-        
+
         return round(last_output)
 
     print(f'0 XOR 0: {compute_xor(0, 0)}')

@@ -105,7 +105,7 @@ def __(mo, sigmoid, step):
         plt.plot(x_values, y_values, label='sigmoid', color='blue')
         plt.plot(x_values, y_values_shifted, label='sigmoid (-1 bias)', color='red', linestyle='--')
 
-        show_plot('Sigmoid', True)
+        show_plot('Sigmoid and bias', True)
 
     def plot_sigmoid_step():
         setup_plot()
@@ -136,6 +136,18 @@ def __(mo, sigmoid, step):
         setup_plot,
         show_plot,
     )
+
+
+@app.cell
+def __(mo):
+    mo.md(
+        r"""
+        This notebook explores the perceptron algorithm, focusing on how it computes rather than how it learns. Introduced by Frank Rosenblatt in the 1950s, the perceptron is the foundational neuron model for today’s neural network architectures.
+
+        We'll start by examining how a single perceptron works. Then, we'll add layers and interconnect the neurons into a network, and use it to implement the non-linear XOR gate.
+        """
+    )
+    return
 
 
 @app.cell
@@ -245,7 +257,7 @@ def __(mo, plot_sigmoid_bias):
 
     A common technique to shift a function curve left or right is to add a (constant) value to its input, known as a "bias".
 
-    To illustrate, consider the sigmoid function (in blue). Normally, for for x = 0, y = 1. By adding a bias of -1, we shift the function to the right, now for x = 0, y = 0.27 (which is just sigmoid(-1)).
+    To illustrate, consider the sigmoid function (in blue). Normally, for x = 0, y = 1. By adding a bias of -1, we shift the function to the right, now for x = 0, y = 0.27 (which is just sigmoid(-1)).
 
     Don't worry about the sigmoid function for now, it will be introduced later on this notebook.
 
@@ -375,7 +387,7 @@ def __(mo):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def __(mo):
     mo.mermaid('''
 
@@ -487,6 +499,18 @@ def __(dot, mo, sigmoid):
 
     ''')
     return compute_network, compute_neuron, compute_xor
+
+
+@app.cell
+def __(mo):
+    mo.md(
+        """
+        We’ve successfully built a neural network to solve the XOR problem, demonstrating how adding layers and using the right activation functions can tackle non-linear challenges.
+
+        This shows how even simple neural networks can handle tricky problems, paving the way for more complex applications.
+        """
+    )
+    return
 
 
 if __name__ == "__main__":

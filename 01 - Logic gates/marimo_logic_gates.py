@@ -261,12 +261,12 @@ def __(mo, plot_step):
 
     # Step function
 
-    After doing our weighted sum, we'll pass the values to the step function:
+    After computing the weighted sum, we pass the values to the step function:
 
     - for x < 0, y = 0
     - for x >= 0, y = 1
 
-    It basically works as a on/off switch, off when negative and on when positive.
+    It essentially works as an on/off switch, off when negative and on when positive.
 
     ''')
     return
@@ -291,9 +291,9 @@ def __(compute_perceptron, mo):
     0 | 1
     1 | 0
 
-    The NOT gate that simply inverts the value.
+    The NOT gate that inverts the value.
 
-    Given the perceptron algorithm we saw on the previous section (weighted sum, bias, and step function), we can implement the gate by using a single weight (and bias).
+    Using the perceptron algorithm we discussed earlier (weighted sum, bias, and step function), we can implement the NOT gate with a single weight and bias.
 
     ''')
     return compute_not,
@@ -332,7 +332,7 @@ def __(compute_perceptron, mo):
     1 | 0 | 0       | 1
     1 | 1 | 1       | 1
 
-    With a couple of weights (and one bias), we can compute AND and OR gates.
+    Using a couple of weights and a bias, we can compute AND and OR gates.
 
     ''')
     return compute_and, compute_or
@@ -353,9 +353,9 @@ def __(mo, plot_xor):
     1 | 0 | 1
     1 | 1 | 0
 
-    Unlike the other logic gates, the XOR gate is not linearly separable, that is, we cannot draw a single line to separate the true values from the false. Due to that, we cannot use a single perceptron to implement it. This is known as "the XOR problem".
+    Unlike the other logic gates, the XOR gate is not linearly separable, that is, we cannot draw a single line to separate the true values from the false. As a result, a single perceptron cannot implement the XOR gate, a challenge known as "the XOR problem".
 
-    See how you cannot separate the blue and red dots on the graph below with a single line.
+    Notice how the blue and red dots on the graph below cannot be separated by a single line.
 
     ''')
     return
@@ -367,15 +367,15 @@ def __(mo):
         """
         # Neural network
 
-        While we cannot use a single perceptron to compute the XOR gate, we can compute it by using more than one neuron. Stacking up layers of artificial neurons and connecting them up makes what is called an "artificial neuron network".
+        A single perceptron cannot compute the XOR gate because it is a non-linear function. However, by using more than one neuron and stacking them in layers, we can create what is called an "artificial neural network".
 
-        Below we can see the network that we'll implement on this notebook.
+        Below is the structure of the neural network that we will implement in this notebook.
         """
     )
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def __(mo):
     mo.mermaid('''
 
@@ -411,13 +411,13 @@ def __(mo):
 def __(mo):
     mo.md(
         """
-        A typical neural network consists of an input layer (with 𝑛 neurons), followed by 𝑛 hidden layers (with 𝑛 neurons each), followed by an output layer (with 𝑛 neurons).
+        A typical neural network consists of an input layer, followed by one or more hidden layers, and an output layer.
 
-        On our network that we are building, to compute the XOR logic gate, we have two neurons at the input layer because the logic gate also has two inputs, and a single output just as the gate. The two neurons at the hidden layer is somewhat arbitrary, in this case 2 because is the least amount that we need to solve this problem.
+        In the neural network we are building to compute the XOR logic gate, the input layer has two neurons corresponding to the two inputs of the XOR gate, and the output layer has one neuron, reflecting the single output of the gate. The hidden layer contains two neurons, which is the minimum number required to solve the XOR problem.
 
-        Neural networks can have many different sized hidden layers. When having many, it's said that is a "deep" network. This kind of network, in which the input propagates from the input layer in a single direction to the output layer is called "feed forward". And lastly, since we have all neurons from one layer to connect to all neurons of the next layer, it's said to be "fully connected" or "dense".
+        "Neural networks can have hidden layers of varying sizes. When a network has multiple hidden layers, it is referred to as a "deep" network. In this "feed-forward" network, the input propagates in a single direction, from the input layer to the output layer. Additionally, because each neuron in one layer is connected to every neuron in the subsequent layer, the network is termed "fully connected" or "dense"."
 
-        Each neuron contains it's own adjustable bias (that is added to the input summation as we saw previously), but it was omitted from the diagram for simplicity.
+        Each neuron typically includes an adjustable bias term (added to the summation of inputs), which is essential for shifting the activation function. However, for simplicity, biases are omitted from this diagram.
         """
     )
     return
@@ -431,12 +431,11 @@ def __(mo, plot_sigmoid_step):
 
     # Sigmoid function
 
+    Before tackling the XOR problem, we are introducing a key change: instead of using the step function after calculating the weighted sum of inputs and biases, we will use the sigmoid function.
 
-    Before tackling the XOR, there is just extra piece that we are changing: instead of using the step function after the input and bias summation is calculated, we are going to use the sigmoid function this time.
+    Observe in the plot below that both the sigmoid and step functions transition from 0 to 1. However, the key difference is that the sigmoid function provides a smooth, gradual transition, unlike the abrupt change seen in the step function.
 
-    Note on the plot below that the sigmoid is similar to the step function, both going from 0 to 1. The main difference is that the sigmoid is *smooth*, it doesn't have the sharp change from 0 to 1 that we see on the step function.
-
-    This function that is used to compute the final output of a neuron is called an "activation function", because it basically dictates if the neuron is being activated or not.
+    The sigmoid function is an example of an "activation function", which determines whether or not a neuron is activated based on its output.
 
     ''')
     return
@@ -484,7 +483,7 @@ def __(dot, mo, sigmoid):
 
     # Solving the XOR problem
 
-    Now let's create our network and put some weights that we know beforehand that is able to make XOR work.
+    Lastly, let's build our neural network and manually set the weights that we know in advance will allow the network to solve the XOR problem.
 
     ''')
     return compute_network, compute_neuron, compute_xor
